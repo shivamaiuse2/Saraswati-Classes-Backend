@@ -103,7 +103,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check endpoint
+// Health check endpoint (no database required)
 app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
@@ -111,6 +111,26 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime()
   });
+});
+
+// Database health check endpoint
+app.get('/health/db', async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).json({
+      success: true,
+      message: 'Database connection successful',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Database health check failed:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Database connection failed',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // API Routes
@@ -129,8 +149,18 @@ app.use('/api/v1', enrollmentRoutes);
 // 404 handler
 app.use(notFound);
 
-// Error handling middleware
+// Error handling middleware - must be last
 app.use(errorHandler);
+
+// Handle Vercel serverless errors
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+  });
+});
 
 // Export for Vercel
 module.exports = app;
