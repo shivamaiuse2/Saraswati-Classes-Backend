@@ -39,6 +39,7 @@ app.use(helmet());
 
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+  'https://saraswati-classes-frontend.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000',
   'http://localhost:3001',
