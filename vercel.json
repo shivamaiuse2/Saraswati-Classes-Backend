@@ -15,6 +15,9 @@
   ],
   "env": {
     "NODE_ENV": "production"
+  },
+  "scripts": {
+    "build": "npx prisma generate"
   }
 }
 
