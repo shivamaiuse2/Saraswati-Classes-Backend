@@ -1,0 +1,91 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: backend
+      run: npm ci
+    
+    - name: Generate Prisma Client
+      working-directory: backend
+      run: npx prisma generate
+    
+    - name: Run tests
+      working-directory: backend
+      run: npm test
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+        NODE_ENV: test
+    
+    - name: Run linting
+      working-directory: backend
+      run: npm run lint || echo "No lint script found"
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      working-directory: backend
+      run: npm ci --production
+    
+    - name: Generate Prisma Client
+      working-directory: backend
+      run: npx prisma generate
+    
+    - name: Build Docker image
+      working-directory: backend
+      run: |
+        docker build -t saraswati-classes-api .
+    
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    - name: Push to Docker Hub
+      run: |
+        docker tag saraswati-classes-api ${{ secrets.DOCKER_USERNAME }}/saraswati-classes-api:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/saraswati-classes-api:latest

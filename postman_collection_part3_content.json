@@ -1,0 +1,442 @@
+{
+  "info": {
+    "_postman_id": "saraswati-content-management-part3",
+    "name": "Saraswati Classes - Content & Upload APIs (Part 3)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Content Management (Blogs, Resources, Gallery, Results), Banner Management, File Upload, Notifications\n\n⚠️ Requires admin authentication for most endpoints"
+  },
+  "variable": [
+    {"key": "base_url", "value": "http://localhost:3000", "type": "string"},
+    {"key": "access_token", "value": "", "type": "string"}
+  ],
+  "item": [
+    {
+      "name": "📝 Content - Blog Management",
+      "item": [
+        {
+          "name": "Get All Blogs (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/blogs?page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "blogs"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get Blog By ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/blogs/{{blog_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "blogs", "{{blog_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Create Blog",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"New Blog Post\",\n  \"content\": \"Blog content here...\",\n  \"image\": \"https://example.com/blog.jpg\",\n  \"author\": \"Admin\",\n  \"tags\": [\"education\", \"learning\"]\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/blogs", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "blogs"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Blog",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Updated Blog Title\",\n  \"content\": \"Updated content\",\n  \"isActive\": true\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/blogs/{{blog_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "blogs", "{{blog_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Blog",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/blogs/{{blog_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "blogs", "{{blog_id}}"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📄 Content - Resource Management",
+      "item": [
+        {
+          "name": "Get All Resources (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/resources?page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "resources"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get Resource By ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/resources/{{resource_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "resources", "{{resource_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Create Resource",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Study Material PDF\",\n  \"description\": \"Comprehensive study notes\",\n  \"fileUrl\": \"https://example.com/resource.pdf\",\n  \"category\": \"STUDY_MATERIAL\",\n  \"subject\": \"Physics\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/resources", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "resources"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Resource",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Updated Resource\",\n  \"description\": \"Updated description\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/resources/{{resource_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "resources", "{{resource_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Resource",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/resources/{{resource_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "resources", "{{resource_id}}"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🖼️ Content - Gallery Management",
+      "item": [
+        {
+          "name": "Get Gallery (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/gallery?page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "gallery"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get Gallery Item By ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/gallery/{{gallery_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "gallery", "{{gallery_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Create Gallery Item",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Event Photo\",\n  \"imageUrl\": \"https://example.com/gallery.jpg\",\n  \"category\": \"EVENTS\",\n  \"description\": \"Annual function 2026\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/gallery", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "gallery"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Gallery Item",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Updated Title\",\n  \"description\": \"Updated description\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/gallery/{{gallery_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "gallery", "{{gallery_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Gallery Item",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/gallery/{{gallery_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "gallery", "{{gallery_id}}"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏆 Content - Results Management",
+      "item": [
+        {
+          "name": "Get All Results (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/results?exam=&page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "results"], "query": [{"key": "exam", "value": ""}, {"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get Result By ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/results/{{result_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "results", "{{result_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Create Result",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"studentName\": \"Topper Name\",\n  \"exam\": \"JEE Advanced 2026\",\n  \"rank\": \"AIR 1\",\n  \"score\": \"360/360\",\n  \"percentage\": \"100%\",\n  \"imageUrl\": \"https://example.com/topper.jpg\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/results", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "results"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Result",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"rank\": \"Updated Rank\",\n  \"score\": \"Updated Score\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/results/{{result_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "results", "{{result_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Result",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/results/{{result_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "results", "{{result_id}}"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🎨 Banner & Feature Management",
+      "item": [
+        {
+          "name": "Get All Banners",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/banners", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "banners"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get Banner By ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/banners/{{banner_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "banners", "{{banner_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Create Banner",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"imageUrl\": \"https://example.com/banner.jpg\",\n  \"testSeriesId\": \"{{test_series_id}}\",\n  \"courseId\": \"{{course_id}}\",\n  \"enabled\": true,\n  \"priority\": 1\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/banners", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "banners"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Banner",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"imageUrl\": \"https://example.com/new-banner.jpg\",\n  \"enabled\": false\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/banners/{{banner_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "banners", "{{banner_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Banner",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/banners/{{banner_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "banners", "{{banner_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Feature Flags",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/feature-flags", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "feature-flags"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Create Feature Flag",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"NEW_FEATURE\",\n  \"description\": \"Feature description\",\n  \"status\": \"ENABLED\",\n  \"config\": {}\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/feature-flags", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "feature-flags"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Feature Flag",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"status\": \"DISABLED\",\n  \"description\": \"Updated description\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/feature-flags/{{feature_flag_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "feature-flags", "{{feature_flag_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Feature Flag",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/feature-flags/{{feature_flag_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "feature-flags", "{{feature_flag_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get Popup Content",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/popup", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "popup"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Popup Content",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Special Offer\",\n  \"description\": \"Get 50% off\",\n  \"ctaText\": \"Enroll Now\",\n  \"ctaLink\": \"/courses\",\n  \"enabled\": true\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/popup", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "popup"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📤 File Upload",
+      "item": [
+        {
+          "name": "Upload Image",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "body": {"mode": "formdata", "formdata": [{"key": "image", "type": "file", "src": "/path/to/image.jpg"}, {"key": "folder", "value": "course-images"}]},
+            "url": {"raw": "{{base_url}}/api/v1/upload/image", "host": ["{{base_url}}"], "path": ["api", "v1", "upload", "image"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Document",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "body": {"mode": "formdata", "formdata": [{"key": "document", "type": "file", "src": "/path/to/document.pdf"}, {"key": "folder", "value": "study-materials"}]},
+            "url": {"raw": "{{base_url}}/api/v1/upload/document", "host": ["{{base_url}}"], "path": ["api", "v1", "upload", "document"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Delete File",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/upload/{{publicId}}", "host": ["{{base_url}}"], "path": ["api", "v1", "upload", "{{publicId}}"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔔 Notifications",
+      "item": [
+        {
+          "name": "Get User Notifications",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/notifications", "host": ["{{base_url}}"], "path": ["api", "v1", "notifications"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/notifications/{{notification_id}}/read", "host": ["{{base_url}}"], "path": ["api", "v1", "notifications", "{{notification_id}}", "read"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Notifications (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/notifications?page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "notifications"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Create Notification",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"New Notification\",\n  \"message\": \"Notification message content\",\n  \"type\": \"GENERAL\",\n  \"userId\": \"{{student_id}}\",\n  \"sendEmail\": true\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/notifications", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "notifications"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📬 Contact Forms (Public)",
+      "item": [
+        {
+          "name": "Submit Contact Message (Public)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Contact Name\",\n  \"email\": \"contact@example.com\",\n  \"phone\": \"1234567890\",\n  \"message\": \"Inquiry message\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/contact", "host": ["{{base_url}}"], "path": ["api", "v1", "contact"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Inquiry (Public)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Inquirer Name\",\n  \"email\": \"inquirer@example.com\",\n  \"phone\": \"1234567890\",\n  \"message\": \"Inquiry about courses\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/inquiries", "host": ["{{base_url}}"], "path": ["api", "v1", "inquiries"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Enrollment Request (Public)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Applicant Name\",\n  \"email\": \"applicant@example.com\",\n  \"phone\": \"1234567890\",\n  \"courseOrSeries\": \"JEE Course\",\n  \"message\": \"Want to enroll\",\n  \"username\": \"applicant123\",\n  \"password\": \"password123\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/enrollments", "host": ["{{base_url}}"], "path": ["api", "v1", "enrollments"]}
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

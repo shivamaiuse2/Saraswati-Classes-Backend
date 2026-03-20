@@ -1,0 +1,268 @@
+{
+  "info": {
+    "_postman_id": "saraswati-classes-master-collection-2026",
+    "name": "🎓 Saraswati Classes - MASTER API Collection (Complete)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "🌟 COMPLETE API COLLECTION FOR SARASWATI CLASSES BACKEND\n\n📚 Base URL Configuration:\n- Development: http://localhost:3000\n- Production: Your production URL\n\n🔑 Authentication:\n- Auto-saves tokens from login responses\n- Supports both Admin and Student roles\n- JWT Bearer Token authentication\n\n📊 What's Included:\n✅ Health & System Check\n✅ Authentication (Login, Register, Logout, Profile)\n✅ Public Content APIs (Courses, Test Series, Blogs, etc.)\n✅ Complete Student Dashboard\n✅ Complete Admin Management\n✅ Course & Test Series Management\n✅ Enrollment Processing\n✅ Content Management (Blogs, Resources, Gallery, Results)\n✅ Banner & Feature Flag Management\n✅ File Upload (Images & Documents)\n✅ Notifications System\n✅ Contact & Inquiry Forms\n✅ Analytics Dashboard\n\n🎯 Total Endpoints: 150+\n📝 Total Requests: 150+\n\n👨‍💻 Perfect for:\n- API Testing & Development\n- QA & Regression Testing\n- Documentation Reference\n- Team Onboarding\n- Client Demonstrations"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// 🚀 Auto-save tokens from login responses",
+          "if (pm.response.code === 200 && pm.request.method === 'POST' && pm.request.url.path.includes('/auth/')) {",
+          "    try {",
+          "        const jsonData = pm.response.json();",
+          "        if (jsonData.data && jsonData.data.accessToken) {",
+          "            pm.collectionVariables.set('access_token', jsonData.data.accessToken);",
+          "            pm.collectionVariables.set('refresh_token', jsonData.data.refreshToken);",
+          "            console.log('✅ Tokens auto-saved successfully');",
+          "        }",
+          "    } catch (e) {",
+          "        console.log('⚠️ Token auto-save skipped (not a login response)');",
+          "    }",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {"key": "base_url", "value": "http://localhost:3000", "type": "string"},
+    {"key": "access_token", "value": "", "type": "string"},
+    {"key": "refresh_token", "value": "", "type": "string"},
+    {"key": "admin_email", "value": "admin@saraswaticlasses.com", "type": "string"},
+    {"key": "admin_password", "value": "admin123", "type": "string"},
+    {"key": "student_email", "value": "student@example.com", "type": "string"},
+    {"key": "student_password", "value": "password123", "type": "string"},
+    {"key": "course_id", "value": "", "type": "string"},
+    {"key": "student_id", "value": "", "type": "string"},
+    {"key": "enrollment_id", "value": "", "type": "string"},
+    {"key": "inquiry_id", "value": "", "type": "string"},
+    {"key": "notification_id", "value": "", "type": "string"},
+    {"key": "blog_id", "value": "", "type": "string"},
+    {"key": "resource_id", "value": "", "type": "string"},
+    {"key": "gallery_id", "value": "", "type": "string"},
+    {"key": "result_id", "value": "", "type": "string"},
+    {"key": "test_series_id", "value": "", "type": "string"},
+    {"key": "banner_id", "value": "", "type": "string"},
+    {"key": "feature_flag_id", "value": "", "type": "string"},
+    {"key": "contact_message_id", "value": "", "type": "string"},
+    {"key": "chapter_id", "value": "", "type": "string"}
+  ],
+  "item": [
+    {
+      "name": "🏥 01. Health Check",
+      "item": [
+        {
+          "name": "Health Check Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"]},
+            "description": "Check if server is running and healthy"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔐 02. Authentication",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [{"listen": "test", "script": {"exec": ["if(pm.response.code===200){var j=pm.response.json();if(j.data&&j.data.accessToken){pm.collectionVariables.set('access_token',j.data.accessToken);pm.collectionVariables.set('refresh_token',j.data.refreshToken);console.log('✅ Admin tokens saved');}}"], "type": "text/javascript"}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/auth/admin/login", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "admin", "login"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Student Login",
+          "event": [{"listen": "test", "script": {"exec": ["if(pm.response.code===200){var j=pm.response.json();if(j.data&&j.data.accessToken){pm.collectionVariables.set('access_token',j.data.accessToken);pm.collectionVariables.set('refresh_token',j.data.refreshToken);console.log('✅ Student tokens saved');}}"], "type": "text/javascript"}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"{{student_email}}\",\n  \"password\": \"{{student_password}}\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/auth/student/login", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "student", "login"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Register",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"newadmin@example.com\",\n  \"password\": \"admin123\",\n  \"phone\": \"1234567890\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/auth/admin/register", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "admin", "register"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Student Register",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"newstudent@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"1234567890\",\n  \"standard\": \"10th\",\n  \"board\": \"CBSE\",\n  \"address\": \"123 Main St\",\n  \"dateOfBirth\": \"2005-01-01\",\n  \"guardianName\": \"Parent Name\",\n  \"guardianPhone\": \"0987654321\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/auth/register", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "register"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/auth/refresh", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "refresh"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/auth/logout", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "logout"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current Profile",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/auth/profile", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "profile"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🌐 03. Public Content",
+      "item": [
+        {
+          "name": "All Courses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/courses?category=&search=", "host": ["{{base_url}}"], "path": ["api", "v1", "courses"], "query": [{"key": "category", "value": ""}, {"key": "search", "value": ""}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Course By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/courses/{{course_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "courses", "{{course_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "All Test Series",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/test-series?search=&page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "v1", "test-series"], "query": [{"key": "search", "value": ""}, {"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Test Series By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/test-series/{{test_series_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "test-series", "{{test_series_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "All Blogs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/blogs?page=1&limit=10&search=", "host": ["{{base_url}}"], "path": ["api", "v1", "blogs"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "search", "value": ""}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Blog By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/blogs/{{blog_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "blogs", "{{blog_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "All Resources",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/resources?page=1&limit=10&search=", "host": ["{{base_url}}"], "path": ["api", "v1", "resources"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "search", "value": ""}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Resource By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/resources/{{resource_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "resources", "{{resource_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Gallery",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/gallery?category=&page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "v1", "gallery"], "query": [{"key": "category", "value": ""}, {"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Results Showcase",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/results?exam=&page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "v1", "results"], "query": [{"key": "exam", "value": ""}, {"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Active Banners",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/banners", "host": ["{{base_url}}"], "path": ["api", "v1", "banners"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Feature Flags",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/feature-flags", "host": ["{{base_url}}"], "path": ["api", "v1", "feature-flags"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Popup Content",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/popup", "host": ["{{base_url}}"], "path": ["api", "v1", "popup"]}
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

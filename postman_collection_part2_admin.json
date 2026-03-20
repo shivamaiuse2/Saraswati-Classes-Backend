@@ -1,0 +1,362 @@
+{
+  "info": {
+    "_postman_id": "saraswati-admin-api-part2",
+    "name": "Saraswati Classes - Admin & Management APIs (Part 2)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Complete Admin, Content Management, Upload, Analytics, and other administrative endpoints\n\n⚠️ Requires admin authentication - Login first using Authentication > Admin Login"
+  },
+  "variable": [
+    {"key": "base_url", "value": "http://localhost:3000", "type": "string"},
+    {"key": "access_token", "value": "", "type": "string"}
+  ],
+  "item": [
+    {
+      "name": "👨‍💼 Admin - Student Management",
+      "item": [
+        {
+          "name": "Get All Students",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/students", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "students"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Create Student",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"New Student\",\n  \"email\": \"newstudent@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"1234567890\",\n  \"standard\": \"10th\",\n  \"board\": \"CBSE\",\n  \"status\": \"ACTIVE\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/students", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "students"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get Student By ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/students/{{student_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "students", "{{student_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Student",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Updated Name\",\n  \"email\": \"updated@example.com\",\n  \"status\": \"BLOCKED\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/students/{{student_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "students", "{{student_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Student Status",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"status\": \"ACTIVE\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/students/{{student_id}}/status", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "students", "{{student_id}}", "status"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Student",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/students/{{student_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "students", "{{student_id}}"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📚 Admin - Course Management",
+      "item": [
+        {
+          "name": "Get All Courses",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/courses", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "courses"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get Course By ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/courses/{{course_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "courses", "{{course_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Create Course",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"JEE Advanced 2026\",\n  \"category\": \"JEE\",\n  \"description\": \"Comprehensive JEE Advanced preparation\",\n  \"fullDescription\": \"Complete course covering all subjects\",\n  \"mode\": \"Online\",\n  \"image\": \"https://example.com/course.jpg\",\n  \"timing\": \"9:00 AM - 12:00 PM\",\n  \"days\": \"Mon-Fri\",\n  \"pricePerSubject\": 5000,\n  \"subjects\": [\"Physics\", \"Chemistry\", \"Mathematics\"],\n  \"chapters\": [\n    {\n      \"title\": \"Chapter 1\",\n      \"description\": \"Introduction\",\n      \"videoUrl\": \"https://youtube.com/watch?v=xxx\"\n    }\n  ]\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/courses", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "courses"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Course",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Updated Course Title\",\n  \"pricePerSubject\": 6000\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/courses/{{course_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "courses", "{{course_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Add Chapter",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"New Chapter\",\n  \"description\": \"Chapter description\",\n  \"videoUrl\": \"https://youtube.com/watch?v=xxx\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/courses/{{course_id}}/chapters", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "courses", "{{course_id}}", "chapters"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Chapter",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Updated Chapter\",\n  \"description\": \"Updated description\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/chapters/{{chapter_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "chapters", "{{chapter_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Chapter",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/chapters/{{chapter_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "chapters", "{{chapter_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Course",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/courses/{{course_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "courses", "{{course_id}}"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📝 Admin - Test Series Management",
+      "item": [
+        {
+          "name": "Get All Test Series",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/test-series", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "test-series"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Create Test Series",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"NEET Mock Test Series\",\n  \"overview\": \"Comprehensive NEET mock tests\",\n  \"features\": [\"50+ Tests\", \"Detailed Analysis\"],\n  \"testPattern\": \"MCQ\",\n  \"benefits\": [\"Real exam experience\"],\n  \"image\": \"https://example.com/test.jpg\",\n  \"ctaLabel\": \"Enroll Now\",\n  \"demoTestLink\": \"https://example.com/demo\",\n  \"heroPosterThumbnail\": \"https://example.com/poster.jpg\",\n  \"showInHeroPoster\": true,\n  \"testsCount\": 50,\n  \"mode\": \"ONLINE\",\n  \"price\": \"₹5000\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/test-series", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "test-series"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Test Series",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Updated Test Series\",\n  \"price\": \"₹6000\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/test-series/{{test_series_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "test-series", "{{test_series_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Test Series",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/test-series/{{test_series_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "test-series", "{{test_series_id}}"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📊 Admin - Analytics",
+      "item": [
+        {
+          "name": "Dashboard Overview",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/analytics", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "analytics"]}
+          },
+          "response": []
+        },
+        {
+          "name": "User Analytics",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/analytics/users", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "analytics", "users"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Course Analytics",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/analytics/courses", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "analytics", "courses"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Revenue Analytics",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/analytics/revenue", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "analytics", "revenue"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📋 Admin - Enrollment Management",
+      "item": [
+        {
+          "name": "Get All Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/enrollments?status=&search=&page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "enrollments"], "query": [{"key": "status", "value": ""}, {"key": "search", "value": ""}, {"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get Enrollment By ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/enrollments/{{enrollment_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "enrollments", "{{enrollment_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Enrollment Status",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"status\": \"APPROVED\",\n  \"notes\": \"Approved by admin\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/enrollments/{{enrollment_id}}/status", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "enrollments", "{{enrollment_id}}", "status"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Enrollment",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/enrollments/{{enrollment_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "enrollments", "{{enrollment_id}}"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📧 Admin - Contact & Inquiries",
+      "item": [
+        {
+          "name": "Get All Contact Messages",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/contact-messages", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "contact-messages"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get Contact Message By ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/contact-messages/{{contact_message_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "contact-messages", "{{contact_message_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Contact Message Status",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"status\": \"RESOLVED\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/contact-messages/{{contact_message_id}}/status", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "contact-messages", "{{contact_message_id}}", "status"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Contact Message",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/contact-messages/{{contact_message_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "contact-messages", "{{contact_message_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Inquiries",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/inquiries?status=&search=&page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "inquiries"], "query": [{"key": "status", "value": ""}, {"key": "search", "value": ""}, {"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get Inquiry By ID",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/inquiries/{{inquiry_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "inquiries", "{{inquiry_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Inquiry Status",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"status\": \"RESOLVED\",\n  \"notes\": \"Inquiry resolved\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/admin/inquiries/{{inquiry_id}}/status", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "inquiries", "{{inquiry_id}}", "status"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Inquiry",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/admin/inquiries/{{inquiry_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "admin", "inquiries", "{{inquiry_id}}"]}
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

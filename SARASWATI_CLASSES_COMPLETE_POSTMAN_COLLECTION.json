@@ -1,0 +1,437 @@
+{
+  "info": {
+    "_postman_id": "saraswati-classes-complete-api-v2026",
+    "name": "Saraswati Classes - Complete API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Complete API documentation for Saraswati Classes Coaching Institute Backend\n\n📚 Base URL: http://localhost:3000\n🔑 Authentication: Bearer Token (auto-saved from login responses)\n\nThis collection includes:\n✅ Authentication & Authorization\n✅ Public Content APIs\n✅ Student Dashboard\n✅ Admin Management\n✅ Course Management\n✅ Test Series Management\n✅ Enrollment & Inquiries\n✅ Content Management (Blogs, Resources, Gallery, Results)\n✅ Banner & Feature Flags\n✅ File Upload\n✅ Contact & Notifications\n✅ Analytics"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-save tokens from login responses",
+          "if (pm.response.code === 200 && pm.request.method === 'POST' && pm.request.url.path.includes('/auth/')) {",
+          "    try {",
+          "        const jsonData = pm.response.json();",
+          "        if (jsonData.data && jsonData.data.accessToken) {",
+          "            pm.collectionVariables.set('access_token', jsonData.data.accessToken);",
+          "            pm.collectionVariables.set('refresh_token', jsonData.data.refreshToken);",
+          "            console.log('✅ Tokens auto-saved');",
+          "        }",
+          "    } catch (e) {}",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {"key": "base_url", "value": "http://localhost:3000", "type": "string"},
+    {"key": "access_token", "value": "", "type": "string"},
+    {"key": "refresh_token", "value": "", "type": "string"},
+    {"key": "admin_email", "value": "admin@saraswaticlasses.com", "type": "string"},
+    {"key": "admin_password", "value": "admin123", "type": "string"},
+    {"key": "student_email", "value": "student@example.com", "type": "string"},
+    {"key": "student_password", "value": "password123", "type": "string"},
+    {"key": "course_id", "value": "", "type": "string"},
+    {"key": "student_id", "value": "", "type": "string"},
+    {"key": "enrollment_id", "value": "", "type": "string"},
+    {"key": "inquiry_id", "value": "", "type": "string"},
+    {"key": "notification_id", "value": "", "type": "string"},
+    {"key": "blog_id", "value": "", "type": "string"},
+    {"key": "resource_id", "value": "", "type": "string"},
+    {"key": "gallery_id", "value": "", "type": "string"},
+    {"key": "result_id", "value": "", "type": "string"},
+    {"key": "test_series_id", "value": "", "type": "string"},
+    {"key": "banner_id", "value": "", "type": "string"},
+    {"key": "feature_flag_id", "value": "", "type": "string"},
+    {"key": "contact_message_id", "value": "", "type": "string"},
+    {"key": "chapter_id", "value": "", "type": "string"}
+  ],
+  "item": [
+    {
+      "name": "🏥 Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"]},
+            "description": "Check server health and uptime"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [{"listen": "test", "script": {"exec": ["if(pm.response.code===200){var j=pm.response.json();if(j.data&&j.data.accessToken){pm.collectionVariables.set('access_token',j.data.accessToken);pm.collectionVariables.set('refresh_token',j.data.refreshToken);console.log('✅ Admin tokens saved');}}"], "type": "text/javascript"}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/auth/admin/login", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "admin", "login"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Student Login",
+          "event": [{"listen": "test", "script": {"exec": ["if(pm.response.code===200){var j=pm.response.json();if(j.data&&j.data.accessToken){pm.collectionVariables.set('access_token',j.data.accessToken);pm.collectionVariables.set('refresh_token',j.data.refreshToken);console.log('✅ Student tokens saved');}}"], "type": "text/javascript"}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"{{student_email}}\",\n  \"password\": \"{{student_password}}\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/auth/student/login", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "student", "login"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Register",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin2@example.com\",\n  \"password\": \"admin123\",\n  \"phone\": \"1234567890\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/auth/admin/register", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "admin", "register"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Student Register",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"student2@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"1234567890\",\n  \"standard\": \"10th\",\n  \"board\": \"CBSE\",\n  \"address\": \"123 Main St\",\n  \"dateOfBirth\": \"2005-01-01\",\n  \"guardianName\": \"Parent\",\n  \"guardianPhone\": \"0987654321\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/auth/register", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "register"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/auth/refresh", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "refresh"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/auth/logout", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "logout"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/auth/profile", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "profile"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🌐 Public Content",
+      "item": [
+        {
+          "name": "All Courses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/courses?category=&search=", "host": ["{{base_url}}"], "path": ["api", "v1", "courses"], "query": [{"key": "category", "value": ""}, {"key": "search", "value": ""}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Course By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/courses/{{course_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "courses", "{{course_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "All Test Series",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/test-series?search=&page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "v1", "test-series"], "query": [{"key": "search", "value": ""}, {"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Test Series By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/test-series/{{test_series_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "test-series", "{{test_series_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "All Blogs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/blogs?page=1&limit=10&search=", "host": ["{{base_url}}"], "path": ["api", "v1", "blogs"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "search", "value": ""}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Blog By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/blogs/{{blog_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "blogs", "{{blog_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "All Resources",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/resources?page=1&limit=10&search=", "host": ["{{base_url}}"], "path": ["api", "v1", "resources"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}, {"key": "search", "value": ""}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Resource By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/resources/{{resource_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "resources", "{{resource_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Gallery",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/gallery?category=&page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "v1", "gallery"], "query": [{"key": "category", "value": ""}, {"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Results",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/results?exam=&page=1&limit=10", "host": ["{{base_url}}"], "path": ["api", "v1", "results"], "query": [{"key": "exam", "value": ""}, {"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          },
+          "response": []
+        },
+        {
+          "name": "Active Banners",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/banners", "host": ["{{base_url}}"], "path": ["api", "v1", "banners"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Feature Flags",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/feature-flags", "host": ["{{base_url}}"], "path": ["api", "v1", "feature-flags"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Popup Content",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {"raw": "{{base_url}}/api/v1/popup", "host": ["{{base_url}}"], "path": ["api", "v1", "popup"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🎓 Student Dashboard",
+      "item": [
+        {
+          "name": "Dashboard Overview",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/students/dashboard", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "dashboard"]}
+          },
+          "response": []
+        },
+        {
+          "name": "My Profile",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/students/profile", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "profile"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Updated Name\",\n  \"phone\": \"0987654321\",\n  \"address\": \"New Address\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/students/profile", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "profile"]}
+          },
+          "response": []
+        },
+        {
+          "name": "My Courses",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/students/courses", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "courses"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Course Details",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/students/courses/{{course_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "courses", "{{course_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Course Chapters",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/students/courses/{{course_id}}/chapters", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "courses", "{{course_id}}", "chapters"]}
+          },
+          "response": []
+        },
+        {
+          "name": "My Test Series",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/students/test-series", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "test-series"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Test Series Details",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/students/test-series/{{test_series_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "test-series", "{{test_series_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "My Results",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/students/results", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "results"]}
+          },
+          "response": []
+        },
+        {
+          "name": "My Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/students/enrollments", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "enrollments"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Enrollment Details",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/students/enrollments/{{enrollment_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "enrollments", "{{enrollment_id}}"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Create Enrollment",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"courseId\": \"{{course_id}}\",\n  \"message\": \"I want to enroll\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/students/enrollments", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "enrollments"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Enroll Test Series",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/students/test-series/{{test_series_id}}/enroll", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "test-series", "{{test_series_id}}", "enroll"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Test Series Results",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/students/test-series/{{test_series_id}}/results", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "test-series", "{{test_series_id}}", "results"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Student Blogs",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/students/blogs", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "blogs"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Student Resources",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+            "url": {"raw": "{{base_url}}/api/v1/students/resources", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "resources"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Contact Support",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Student Name\",\n  \"email\": \"student@example.com\",\n  \"phone\": \"1234567890\",\n  \"message\": \"Need help with...\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/students/contact", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "contact"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Inquiry",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Student Name\",\n  \"email\": \"student@example.com\",\n  \"phone\": \"1234567890\",\n  \"message\": \"Inquiry about courses\"\n}"},
+            "url": {"raw": "{{base_url}}/api/v1/students/inquiry", "host": ["{{base_url}}"], "path": ["api", "v1", "students", "inquiry"]}
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
