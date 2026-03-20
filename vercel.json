@@ -3,17 +3,18 @@
   "name": "saraswati-classes-backend",
   "builds": [
     {
-      "src": "vercel-api.js",
+      "src": "api.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "vercel-api.js"
+      "dest": "api.js"
     }
   ],
   "env": {
     "NODE_ENV": "production"
   }
 }
+
