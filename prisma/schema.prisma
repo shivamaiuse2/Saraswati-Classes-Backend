@@ -163,9 +163,25 @@ model TestSeries {
 
   enrollments   TestSeriesEnrollment[]
   testResults   TestResult[]
+  tests         Test[]
   bannerPosters BannerPoster[]
 
   @@index([createdBy])
+}
+
+model Test {
+  id           String   @id @default(uuid())
+  testSeriesId String
+  testNumber   Int
+  title        String
+  description  String?
+  testLink     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  testSeries   TestSeries @relation(fields: [testSeriesId], references: [id], onDelete: Cascade)
+
+  @@index([testSeriesId])
 }
 
 model Enrollment {

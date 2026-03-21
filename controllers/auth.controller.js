@@ -99,7 +99,13 @@ const studentLogin = async (req, res, next) => {
     const user = await prisma.user.findUnique({
       where: { email },
       include: {
-        studentProfile: true
+        studentProfile: {
+          include: {
+            courseEnrollments: true,
+            testSeriesEnrollments: true,
+            testResults: true
+          }
+        }
       }
     });
 
@@ -205,7 +211,13 @@ const registerStudent = async (req, res, next) => {
         }
       },
       include: {
-        studentProfile: true
+        studentProfile: {
+          include: {
+            courseEnrollments: true,
+            testSeriesEnrollments: true,
+            testResults: true
+          }
+        }
       }
     });
 
@@ -393,7 +405,13 @@ const getProfile = async (req, res, next) => {
       where: { id: req.user.userId },
       include: {
         adminProfile: true,
-        studentProfile: true
+        studentProfile: {
+          include: {
+            courseEnrollments: true,
+            testSeriesEnrollments: true,
+            testResults: true
+          }
+        }
       }
     });
 

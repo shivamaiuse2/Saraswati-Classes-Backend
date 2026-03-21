@@ -89,6 +89,11 @@ const getTestSeriesById = async (req, res, next) => {
               }
             }
           }
+        },
+        tests: {
+          orderBy: {
+            testNumber: 'asc'
+          }
         }
       }
     });
@@ -417,7 +422,15 @@ const getStudentTestSeries = async (req, res, next) => {
       include: {
         testSeriesEnrollments: {
           include: {
-            testSeries: true
+            testSeries: {
+              include: {
+                tests: {
+                  orderBy: {
+                    testNumber: 'asc'
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -562,6 +575,130 @@ const getTestSeriesResults = async (req, res, next) => {
   }
 };
 
+// Add a test to a test series
+const addTestToSeries = async (req, res, next) => {
+  try {
+    const { id: testSeriesId } = req.params;
+    const { testNumber, title, description, testLink } = req.body;
+
+    if (!testNumber || !title || !testLink) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+
+    const test = await prisma.test.create({
+      data: {
+        testSeriesId,
+        testNumber: parseInt(testNumber),
+        title,
+        description,
+        testLink
+      }
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Test added successfully',
+      data: test
+    });
+  } catch (error) {
+    logger.error('Add test error:', error);
+    next(error);
+  }
+};
+
+// Update a test in a test series
+const updateTest = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { testNumber, title, description, testLink } = req.body;
+
+    const test = await prisma.test.update({
+      where: { id },
+      data: {
+        ...(testNumber && { testNumber: parseInt(testNumber) }),
+        ...(title && { title }),
+        ...(description && { description }),
+        ...(testLink && { testLink })
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Test updated successfully',
+      data: test
+    });
+  } catch (error) {
+    logger.error('Update test error:', error);
+    next(error);
+  }
+};
+
+// Delete a test from a series
+const deleteTest = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.test.delete({
+      where: { id }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Test deleted successfully'
+    });
+  } catch (error) {
+    logger.error('Delete test error:', error);
+    next(error);
+  }
+};
+
+// Create a test result for a student
+const createTestResult = async (req, res, next) => {
+  try {
+    const { studentId, testSeriesId, testName, marksObtained, totalMarks, testDate } = req.body;
+
+    if (!studentId || !testName || marksObtained === undefined || !totalMarks) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+
+    const percentage = (marksObtained / totalMarks) * 100;
+    
+    // Simple grading
+    let grade = 'C';
+    if (percentage >= 90) grade = 'A+';
+    else if (percentage >= 80) grade = 'A';
+    else if (percentage >= 70) grade = 'B';
+    
+    const result = await prisma.testResult.create({
+      data: {
+        studentId,
+        testSeriesId,
+        testName,
+        marksObtained: parseInt(marksObtained),
+        totalMarks: parseInt(totalMarks),
+        percentage,
+        grade,
+        testDate: testDate ? new Date(testDate) : new Date()
+      }
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Test result recorded successfully',
+      data: result
+    });
+  } catch (error) {
+    logger.error('Create test result error:', error);
+    next(error);
+  }
+};
+
 module.exports = {
   getAllTestSeries,
   getTestSeriesById,
@@ -571,5 +708,9 @@ module.exports = {
   deleteTestSeries,
   getStudentTestSeries,
   enrollInTestSeries,
-  getTestSeriesResults
+  getTestSeriesResults,
+  addTestToSeries,
+  updateTest,
+  deleteTest,
+  createTestResult
 };

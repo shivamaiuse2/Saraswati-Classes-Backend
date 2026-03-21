@@ -38,6 +38,14 @@ router.post('/', authenticate, authorizeAdmin, testSeriesController.createTestSe
 router.put('/:id', authenticate, authorizeAdmin, testSeriesController.updateTestSeries);
 router.delete('/:id', authenticate, authorizeAdmin, testSeriesController.deleteTestSeries);
 
+// Test Series - Test management
+router.post('/:id/tests', authenticate, authorizeAdmin, testSeriesController.addTestToSeries);
+router.put('/tests/:id', authenticate, authorizeAdmin, testSeriesController.updateTest);
+router.delete('/tests/:id', authenticate, authorizeAdmin, testSeriesController.deleteTest);
+
+// Test results management
+router.post('/results', authenticate, authorizeAdmin, testSeriesController.createTestResult);
+
 // Student routes
 /**
  * @swagger
