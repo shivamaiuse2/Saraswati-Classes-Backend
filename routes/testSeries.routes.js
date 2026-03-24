@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const testSeriesController = require('../controllers/testSeries.controller');
 const { authenticate, authorizeAdmin, authorizeStudent } = require('../utils/auth');
-const { cacheMiddleware } = require('../utils/cache');
+// const { cacheMiddleware } = require('../utils/cache');
 
 /**
  * @swagger
@@ -30,7 +30,7 @@ const { cacheMiddleware } = require('../utils/cache');
  *         description: Test series retrieved successfully
  */
 // Admin and public routes
-router.get('/', cacheMiddleware(60), testSeriesController.getAllTestSeries);
+router.get('/', testSeriesController.getAllTestSeries);
 router.get('/admin', authenticate, authorizeAdmin, testSeriesController.getAdminTestSeries);
 
 // Test results management - MUST be before /:id to avoid route collision
@@ -40,7 +40,7 @@ router.put('/results/:id', authenticate, authorizeAdmin, testSeriesController.up
 router.delete('/results/:id', authenticate, authorizeAdmin, testSeriesController.deleteTestResult);
 
 // Test Series by ID - must come after specific routes
-router.get('/:id', cacheMiddleware(60), testSeriesController.getTestSeriesById);
+router.get('/:id', testSeriesController.getTestSeriesById);
 
 // Admin operations
 router.post('/', authenticate, authorizeAdmin, testSeriesController.createTestSeries);

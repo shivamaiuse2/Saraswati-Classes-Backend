@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const contentController = require('../controllers/content.controller');
 const { authenticate, authorizeAdmin } = require('../utils/auth');
-const { cacheMiddleware } = require('../utils/cache');
+// const { cacheMiddleware } = require('../utils/cache');
 
 // Public routes
 /**
@@ -30,7 +30,7 @@ const { cacheMiddleware } = require('../utils/cache');
  *       200:
  *         description: Blogs retrieved successfully
  */
-router.get('/blogs', cacheMiddleware(120), contentController.getAllBlogs);
+router.get('/blogs', contentController.getAllBlogs);
 
 /**
  * @swagger
@@ -50,7 +50,7 @@ router.get('/blogs', cacheMiddleware(120), contentController.getAllBlogs);
  *       404:
  *         description: Blog not found
  */
-router.get('/blogs/:id', cacheMiddleware(120), contentController.getBlogById);
+router.get('/blogs/:id', contentController.getBlogById);
 
 /**
  * @swagger
@@ -77,7 +77,7 @@ router.get('/blogs/:id', cacheMiddleware(120), contentController.getBlogById);
  *       200:
  *         description: Resources retrieved successfully
  */
-router.get('/resources', cacheMiddleware(120), contentController.getAllResources);
+router.get('/resources', contentController.getAllResources);
 
 /**
  * @swagger
@@ -104,7 +104,7 @@ router.get('/resources', cacheMiddleware(120), contentController.getAllResources
  *       200:
  *         description: Gallery items retrieved successfully
  */
-router.get('/gallery', cacheMiddleware(120), contentController.getGalleryItems);
+router.get('/gallery', contentController.getGalleryItems);
 
 /**
  * @swagger
@@ -131,7 +131,7 @@ router.get('/gallery', cacheMiddleware(120), contentController.getGalleryItems);
  *       200:
  *         description: Results retrieved successfully
  */
-router.get('/results', cacheMiddleware(120), contentController.getAllResults);
+router.get('/results', contentController.getAllResults);
 
 // Admin routes
 /**

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const uploadController = require('../controllers/upload.controller');
-const { authenticate, authorizeAdmin } = require('../utils/auth');
+const { authenticate, authorizeAdmin, authorizeRoles } = require('../utils/auth');
 const multer = require('multer');
 
 // Configure multer for memory storage
@@ -52,7 +52,7 @@ const documentUpload = multer({
  *       200:
  *         description: Image uploaded successfully
  */
-router.post('/image', authenticate, authorizeAdmin, upload.single('image'), uploadController.uploadImage);
+router.post('/image', authenticate, authorizeRoles('ADMIN', 'STUDENT'), upload.single('image'), uploadController.uploadImage);
 
 /**
  * @swagger
@@ -78,7 +78,7 @@ router.post('/image', authenticate, authorizeAdmin, upload.single('image'), uplo
  *       200:
  *         description: Document uploaded successfully
  */
-router.post('/document', authenticate, authorizeAdmin, documentUpload.single('document'), uploadController.uploadDocument);
+router.post('/document', authenticate, authorizeRoles('ADMIN', 'STUDENT'), documentUpload.single('document'), uploadController.uploadDocument);
 
 /**
  * @swagger
@@ -98,6 +98,6 @@ router.post('/document', authenticate, authorizeAdmin, documentUpload.single('do
  *       200:
  *         description: File deleted successfully
  */
-router.delete('/:publicId', authenticate, authorizeAdmin, uploadController.deleteFile);
+router.delete('/:publicId', authenticate, authorizeRoles('ADMIN', 'STUDENT'), uploadController.deleteFile);
 
 module.exports = router;
