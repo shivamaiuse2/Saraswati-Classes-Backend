@@ -293,6 +293,40 @@ const getAllResults = async (req, res, next) => {
   }
 };
 
+// Student - Get student's own results (achievements added by admin)
+const getStudentResults = async (req, res, next) => {
+  try {
+    const studentId = req.userDetails.studentProfile?.id;
+
+    if (!studentId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Student profile not found'
+      });
+    }
+
+    // Get results linked to this student
+    const results = await prisma.result.findMany({
+      where: {
+        studentId: studentId,
+        isActive: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Student results retrieved successfully',
+      data: results
+    });
+  } catch (error) {
+    logger.error('Get student results error:', error);
+    next(error);
+  }
+};
+
 // Admin - Get all blogs
 const getAdminBlogs = async (req, res, next) => {
   try {
@@ -798,7 +832,7 @@ const getAdminResults = async (req, res, next) => {
 
 const createResult = async (req, res, next) => {
   try {
-    const { name, marks, exam, image } = req.body;
+    const { name, marks, exam, image, studentId } = req.body;
 
     if (!name || !marks || !exam || !image) {
       return res.status(400).json({
@@ -813,6 +847,7 @@ const createResult = async (req, res, next) => {
         marks,
         exam,
         image,
+        studentId: studentId || null,
         createdBy: req.user.userId,
         isActive: true
       }
@@ -1349,6 +1384,7 @@ module.exports = {
   createResult,
   updateResult,
   deleteResult,
+  getStudentResults,
   getAllBannerPosters,
   getBannerPosterById,
   createBannerPoster,

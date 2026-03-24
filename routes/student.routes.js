@@ -37,10 +37,11 @@ router.get('/enrollments', authenticate, authorizeStudent, enrollmentController.
 router.get('/enrollments/:id', authenticate, authorizeStudent, enrollmentController.getEnrollmentById);
 router.post('/enrollments', authenticate, authorizeStudent, enrollmentController.createEnrollment);
 
-// Student test results
+// Student test results (from test series)
 router.get('/results', authenticate, authorizeStudent, testSeriesController.getTestSeriesResults);
-// Note: getStudentResultById not implemented yet, skipping for now
-// router.get('/results/:id', authenticate, authorizeStudent, testSeriesController.getStudentResultById);
+
+// Student achievement results (added by admin)
+router.get('/achievements', authenticate, authorizeStudent, contentController.getStudentResults);
 
 // Content access
 router.get('/blogs', authenticate, authorizeStudent, contentController.getAllBlogs);

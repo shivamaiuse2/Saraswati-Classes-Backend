@@ -35,7 +35,7 @@ const adminLogin = async (req, res, next) => {
       console.log('Admin login failed: User not found or not an admin');
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Account not found or unauthorized access'
       });
     }
 
@@ -46,7 +46,7 @@ const adminLogin = async (req, res, next) => {
       console.log('Admin login failed: Invalid password for user:', email);
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Incorrect email or password'
       });
     }
 
@@ -112,7 +112,7 @@ const studentLogin = async (req, res, next) => {
     if (!user || user.role !== 'STUDENT') {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Student account not found'
       });
     }
 
@@ -129,7 +129,7 @@ const studentLogin = async (req, res, next) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Incorrect email or password'
       });
     }
 

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/course.controller');
 const { authenticate, authorizeAdmin, authorizeRoles } = require('../utils/auth');
+const { cacheMiddleware } = require('../utils/cache');
 
 /**
  * @swagger
@@ -24,7 +25,7 @@ const { authenticate, authorizeAdmin, authorizeRoles } = require('../utils/auth'
  *       200:
  *         description: Courses retrieved successfully
  */
-router.get('/', courseController.getAllCourses);
+router.get('/', cacheMiddleware(60), courseController.getAllCourses);
 
 /**
  * @swagger
@@ -44,7 +45,7 @@ router.get('/', courseController.getAllCourses);
  *       404:
  *         description: Course not found
  */
-router.get('/:id', courseController.getCourseById);
+router.get('/:id', cacheMiddleware(60), courseController.getCourseById);
 
 // Admin routes
 router.post('/', authenticate, authorizeAdmin, courseController.createCourse);

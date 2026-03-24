@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const testSeriesController = require('../controllers/testSeries.controller');
 const { authenticate, authorizeAdmin, authorizeStudent } = require('../utils/auth');
+const { cacheMiddleware } = require('../utils/cache');
 
 /**
  * @swagger
@@ -29,9 +30,17 @@ const { authenticate, authorizeAdmin, authorizeStudent } = require('../utils/aut
  *         description: Test series retrieved successfully
  */
 // Admin and public routes
-router.get('/', testSeriesController.getAllTestSeries);
+router.get('/', cacheMiddleware(60), testSeriesController.getAllTestSeries);
 router.get('/admin', authenticate, authorizeAdmin, testSeriesController.getAdminTestSeries);
-router.get('/:id', testSeriesController.getTestSeriesById);
+
+// Test results management - MUST be before /:id to avoid route collision
+router.post('/results', authenticate, authorizeAdmin, testSeriesController.createTestResult);
+router.get('/results', authenticate, authorizeAdmin, testSeriesController.getAllTestResults);
+router.put('/results/:id', authenticate, authorizeAdmin, testSeriesController.updateTestResult);
+router.delete('/results/:id', authenticate, authorizeAdmin, testSeriesController.deleteTestResult);
+
+// Test Series by ID - must come after specific routes
+router.get('/:id', cacheMiddleware(60), testSeriesController.getTestSeriesById);
 
 // Admin operations
 router.post('/', authenticate, authorizeAdmin, testSeriesController.createTestSeries);
@@ -42,9 +51,6 @@ router.delete('/:id', authenticate, authorizeAdmin, testSeriesController.deleteT
 router.post('/:id/tests', authenticate, authorizeAdmin, testSeriesController.addTestToSeries);
 router.put('/tests/:id', authenticate, authorizeAdmin, testSeriesController.updateTest);
 router.delete('/tests/:id', authenticate, authorizeAdmin, testSeriesController.deleteTest);
-
-// Test results management
-router.post('/results', authenticate, authorizeAdmin, testSeriesController.createTestResult);
 
 // Student routes
 /**

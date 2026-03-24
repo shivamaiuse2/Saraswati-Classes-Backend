@@ -890,7 +890,7 @@ const searchStudents = async (req, res, next) => {
 
     // Transform data for autocomplete
     const suggestions = students.map(user => ({
-      id: user.id,
+      id: user.studentProfile?.id || '',  // Return StudentProfile ID for linking to results
       name: user.studentProfile?.name || '',
       email: user.email,
       phone: user.studentProfile?.phone || ''

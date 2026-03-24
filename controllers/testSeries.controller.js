@@ -699,6 +699,165 @@ const createTestResult = async (req, res, next) => {
   }
 };
 
+// Get all test results (Admin)
+const getAllTestResults = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 20, studentId, testSeriesId } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Build where clause
+    let where = {};
+    if (studentId) where.studentId = studentId;
+    if (testSeriesId) where.testSeriesId = testSeriesId;
+
+    const [results, total] = await Promise.all([
+      prisma.testResult.findMany({
+        where,
+        include: {
+          student: {
+            select: {
+              id: true,
+              name: true,
+              phone: true,
+              user: {
+                select: {
+                  email: true
+                }
+              }
+            }
+          },
+          testSeries: {
+            select: {
+              id: true,
+              title: true
+            }
+          }
+        },
+        skip,
+        take: parseInt(limit),
+        orderBy: {
+          createdAt: 'desc'
+        }
+      }),
+      prisma.testResult.count({ where })
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: 'Test results retrieved successfully',
+      data: results,
+      meta: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        totalPages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (error) {
+    logger.error('Get all test results error:', error);
+    next(error);
+  }
+};
+
+// Update test result (Admin)
+const updateTestResult = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { testName, marksObtained, totalMarks, testDate, testSeriesId } = req.body;
+
+    // Check if result exists
+    const existingResult = await prisma.testResult.findUnique({
+      where: { id }
+    });
+
+    if (!existingResult) {
+      return res.status(404).json({
+        success: false,
+        message: 'Test result not found'
+      });
+    }
+
+    // Calculate new percentage and grade if marks changed
+    let updateData = {};
+    if (testName) updateData.testName = testName;
+    if (testSeriesId !== undefined) updateData.testSeriesId = testSeriesId || null;
+    if (testDate) updateData.testDate = new Date(testDate);
+    
+    if (marksObtained !== undefined || totalMarks !== undefined) {
+      const marks = marksObtained !== undefined ? parseInt(marksObtained) : existingResult.marksObtained;
+      const total = totalMarks !== undefined ? parseInt(totalMarks) : existingResult.totalMarks;
+      const percentage = (marks / total) * 100;
+      
+      let grade = 'C';
+      if (percentage >= 90) grade = 'A+';
+      else if (percentage >= 80) grade = 'A';
+      else if (percentage >= 70) grade = 'B';
+      
+      updateData.marksObtained = marks;
+      updateData.totalMarks = total;
+      updateData.percentage = percentage;
+      updateData.grade = grade;
+    }
+
+    const result = await prisma.testResult.update({
+      where: { id },
+      data: updateData,
+      include: {
+        student: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
+    });
+
+    logger.info(`Test result updated: ${id}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Test result updated successfully',
+      data: result
+    });
+  } catch (error) {
+    logger.error('Update test result error:', error);
+    next(error);
+  }
+};
+
+// Delete test result (Admin)
+const deleteTestResult = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Check if result exists
+    const result = await prisma.testResult.findUnique({
+      where: { id }
+    });
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: 'Test result not found'
+      });
+    }
+
+    await prisma.testResult.delete({
+      where: { id }
+    });
+
+    logger.info(`Test result deleted: ${id}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Test result deleted successfully'
+    });
+  } catch (error) {
+    logger.error('Delete test result error:', error);
+    next(error);
+  }
+};
+
 module.exports = {
   getAllTestSeries,
   getTestSeriesById,
@@ -712,5 +871,8 @@ module.exports = {
   addTestToSeries,
   updateTest,
   deleteTest,
-  createTestResult
+  createTestResult,
+  getAllTestResults,
+  updateTestResult,
+  deleteTestResult
 };
