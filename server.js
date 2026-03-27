@@ -7,7 +7,7 @@ const xss = require('xss');
 const dotenv = require('dotenv');
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ override: true });
 
 // Import routes
 const authRoutes = require('./routes/auth.routes');

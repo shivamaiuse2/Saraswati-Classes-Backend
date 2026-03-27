@@ -143,7 +143,9 @@ const createStudent = async (req, res, next) => {
             dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
             guardianName: guardianName || null,
             guardianPhone: guardianPhone || null,
-            profileImage: profileImage || null
+            profileImage: profileImage || null,
+            username: req.body.username || email,
+            plainPassword: password
           }
         }
       },
@@ -320,7 +322,9 @@ const updateStudent = async (req, res, next) => {
             ...(dateOfBirth !== undefined && { dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null }),
             ...(guardianName !== undefined && { guardianName }),
             ...(guardianPhone !== undefined && { guardianPhone }),
-            ...(profileImage !== undefined && { profileImage })
+            ...(profileImage !== undefined && { profileImage }),
+            ...(req.body.username !== undefined && { username: req.body.username }),
+            ...(req.body.password !== undefined && { plainPassword: req.body.password })
           }
         }
       },
@@ -754,7 +758,7 @@ const getStudentProfile = async (req, res, next) => {
 const updateStudentProfile = async (req, res, next) => {
   try {
     const userId = req.user.userId;
-    const { name, phone, address, dateOfBirth, guardianName, guardianPhone, profileImage } = req.body;
+    const { name, phone, address, dateOfBirth, guardianName, guardianPhone, profileImage, username } = req.body;
 
     // Update student profile
     const updatedUser = await prisma.user.update({
@@ -768,7 +772,8 @@ const updateStudentProfile = async (req, res, next) => {
             ...(dateOfBirth !== undefined && { dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null }),
             ...(guardianName !== undefined && { guardianName }),
             ...(guardianPhone !== undefined && { guardianPhone }),
-            ...(profileImage !== undefined && { profileImage })
+            ...(profileImage !== undefined && { profileImage }),
+            ...(username !== undefined && { username })
           }
         }
       },

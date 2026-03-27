@@ -136,6 +136,10 @@ router.post('/admin/register', authController.registerAdmin);
  *                 type: string
  *               guardianPhone:
  *                 type: string
+ *               profileImage:
+ *                 type: string
+ *               username:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Registration and login successful

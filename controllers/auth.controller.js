@@ -166,7 +166,7 @@ const studentLogin = async (req, res, next) => {
 // Student registration
 const registerStudent = async (req, res, next) => {
   try {
-    const { name, email, password, phone, standard, board, address, dateOfBirth, guardianName, guardianPhone } = req.body;
+    const { name, email, password, phone, standard, board, address, dateOfBirth, guardianName, guardianPhone, username } = req.body;
 
     // Validate required fields
     if (!name || !email || !password) {
@@ -206,7 +206,9 @@ const registerStudent = async (req, res, next) => {
             board: board || null,
             dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
             guardianName: guardianName || null,
-            guardianPhone: guardianPhone || null
+            guardianPhone: guardianPhone || null,
+            username: username || email, // Use provided username or default to email
+            plainPassword: password
           }
         }
       },
@@ -442,7 +444,7 @@ const getProfile = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
   try {
     const userId = req.user.userId;
-    const { name, phone, address, dateOfBirth, guardianName, guardianPhone, profileImage } = req.body;
+    const { name, phone, address, dateOfBirth, guardianName, guardianPhone, profileImage, username } = req.body;
 
     // Get current user to check role
     const user = await prisma.user.findUnique({
@@ -469,7 +471,8 @@ const updateProfile = async (req, res, next) => {
             ...(dateOfBirth !== undefined && { dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null }),
             ...(guardianName !== undefined && { guardianName }),
             ...(guardianPhone !== undefined && { guardianPhone }),
-            ...(profileImage !== undefined && { profileImage })
+            ...(profileImage !== undefined && { profileImage }),
+            ...(username !== undefined && { username })
           }
         }
       },

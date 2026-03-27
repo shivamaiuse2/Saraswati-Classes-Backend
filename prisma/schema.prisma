@@ -55,6 +55,8 @@ model StudentProfile {
   guardianPhone         String?
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
+  username              String?                @unique
+  plainPassword         String?
   certificates          Certificate[]
   courseEnrollments     CourseEnrollment[]
   enrollments           Enrollment[]           @relation("StudentEnrollments")
@@ -94,14 +96,14 @@ model Course {
 }
 
 model CourseChapter {
-  id            String   @id @default(uuid())
-  courseId      String
-  title         String
-  description   String
-  videoUrl      String?
-  chapterNumber Int
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String   @id @default(uuid())
+  courseId        String
+  title           String
+  description     String
+  videoUrl        String?
+  chapterNumber   Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   testLink        String?
   testDescription String?
   course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
