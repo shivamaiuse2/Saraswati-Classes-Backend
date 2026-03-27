@@ -36,23 +36,29 @@ const submitContactMessage = async (req, res, next) => {
       }
     });
 
-    // Send notification email to admin
-    const mailOptions = {
-      from: process.env.EMAIL_FROM,
-      to: process.env.CONTACT_NOTIFICATION_EMAIL || 'shivamaiuse1@gmail.com',
-      subject: `New Contact Message from ${name}`,
-      html: `
-        <h2>New Contact Message</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Message:</strong></p>
-        <p>${message}</p>
-        <p><em>Received at: ${new Date().toLocaleString()}</em></p>
-      `
-    };
+    // Send notification email to admin (optional - won't break if email fails)
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM,
+        to: process.env.CONTACT_NOTIFICATION_EMAIL || 'shivamaiuse1@gmail.com',
+        subject: `New Contact Message from ${name}`,
+        html: `
+          <h2>New Contact Message</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
+          <p><strong>Message:</strong></p>
+          <p>${message}</p>
+          <p><em>Received at: ${new Date().toLocaleString()}</em></p>
+        `
+      };
 
-    await transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptions);
+    } catch (emailError) {
+      // Log email error but don't fail the contact submission
+      logger.error('Failed to send contact notification email:', emailError);
+      // Optionally, you could implement alternative notification methods here
+    }
 
     logger.info(`Contact message received from: ${name} (${email})`);
 
@@ -375,7 +381,7 @@ const createContactMessage = async (req, res, next) => {
   return submitContactMessage(req, res, next);
 };
 
-// Create inquiry (Student)
+// Create inquiry (Student and Public)
 const createInquiry = async (req, res, next) => {
   try {
     const { name, email, phone, message } = req.body;
@@ -388,19 +394,49 @@ const createInquiry = async (req, res, next) => {
       });
     }
 
+    // Prepare inquiry data
+    const inquiryData = {
+      name,
+      email,
+      phone,
+      message,
+      status: 'PENDING'
+    };
+
+    // Add userId only if user is authenticated
+    if (req.user && req.user.userId) {
+      inquiryData.userId = req.user.userId;
+    }
+
     // Create inquiry
     const inquiry = await prisma.inquiry.create({
-      data: {
-        name,
-        email,
-        phone,
-        message,
-        status: 'PENDING',
-        userId: req.user.userId
-      }
+      data: inquiryData
     });
 
-    logger.info(`Inquiry submitted by student: ${name}`);
+    // Send notification email for inquiry (optional - won't break if email fails)
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM,
+        to: process.env.CONTACT_NOTIFICATION_EMAIL || 'shivamaiuse1@gmail.com',
+        subject: `New Inquiry from ${name}`,
+        html: `
+          <h2>New Inquiry Received</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
+          <p><strong>Message:</strong></p>
+          <p>${message}</p>
+          <p><em>Received at: ${new Date().toLocaleString()}</em></p>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+    } catch (emailError) {
+      // Log email error but don't fail the inquiry submission
+      logger.error('Failed to send inquiry notification email:', emailError);
+    }
+
+    logger.info(`Inquiry submitted${req.user && req.user.userId ? ` by student: ${name}` : ` (public): ${name}`}`);
 
     res.status(201).json({
       success: true,
