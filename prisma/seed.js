@@ -28,64 +28,102 @@ const seedDatabase = async () => {
       console.log('Admin user created:', adminUser.email);
     }
 
-    // Create sample courses
+    // Clear existing courses
+    await prisma.course.deleteMany({});
+
+    const admin = await prisma.user.findUnique({ where: { email: 'admin@saraswaticlasses.com' } });
+    const adminId = admin.id;
+
+    // Create new courses based on requirements
     const courses = [
+      // CBSE
       {
-        title: '8th CBSE',
-        category: 'FOUNDATION',
-        description: 'Build strong fundamentals in Maths and Science aligned with CBSE syllabus.',
-        fullDescription: 'Our 8th CBSE foundation batch focuses on conceptual clarity and regular practice in Maths and Science.',
-        mode: 'Offline',
-        image: 'https://placehold.co/400x250/0ea5e9/ffffff?text=8th+CBSE',
-        timing: '6:30 – 7:30 PM',
-        days: 'Monday – Friday',
-        pricePerSubject: 9000,
+        board: 'CBSE',
+        standard: 'VIII',
+        timing_start: '6:30 PM',
+        timing_end: '7:30 PM',
+        days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
         subjects: ['Maths', 'Science'],
-        duration: 'Full Academic Year',
-        demoVideoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-        createdBy: (await prisma.user.findUnique({ where: { email: 'admin@saraswaticlasses.com' } })).id
+        fees: 9000,
+        createdBy: adminId
       },
       {
-        title: '10th CBSE',
-        category: 'FOUNDATION',
-        description: 'Board-focused 10th CBSE preparation with regular prelim-style tests.',
-        fullDescription: 'Comprehensive coverage of the 10th CBSE Maths and Science syllabus.',
-        mode: 'Offline',
-        image: 'https://placehold.co/400x250/0ea5e9/ffffff?text=10th+CBSE',
-        timing: '4:15 – 5:30 PM',
-        days: 'Monday – Saturday',
-        pricePerSubject: 10500,
+        board: 'CBSE',
+        standard: 'IX',
+        timing_start: '5:15 PM',
+        timing_end: '6:30 PM',
+        days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         subjects: ['Maths', 'Science'],
-        duration: 'Full Academic Year',
-        demoVideoUrl: 'https://www.youtube.com/embed/3JZ_D3ELwOQ',
-        createdBy: (await prisma.user.findUnique({ where: { email: 'admin@saraswaticlasses.com' } })).id
+        fees: 9500,
+        createdBy: adminId
       },
       {
-        title: '12th Science State Board PCMB + JEE + NEET + CET',
-        category: 'SCIENCE',
-        description: 'Integrated 12th Science coaching for Board + JEE + NEET + CET.',
-        fullDescription: 'This integrated 12th Science program covers complete State Board PCMB syllabus.',
-        mode: 'Offline',
-        image: 'https://placehold.co/400x250/0ea5e9/ffffff?text=12th+Science+PCMB',
-        timing: '6:00 – 9:00 PM',
-        days: 'As per batch schedule',
-        pricePerSubject: 25000,
-        subjects: ['Physics', 'Chemistry', 'Mathematics', 'Biology'],
-        duration: 'One Academic Year',
-        demoVideoUrl: 'https://www.youtube.com/embed/09R8_2nJtjg',
-        createdBy: (await prisma.user.findUnique({ where: { email: 'admin@saraswaticlasses.com' } })).id
+        board: 'CBSE',
+        standard: 'X',
+        timing_start: '4:00 PM',
+        timing_end: '5:15 PM',
+        days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        subjects: ['Maths', 'Science'],
+        fees: 10500,
+        createdBy: adminId
+      },
+      // SSC
+      {
+        board: 'SSC',
+        standard: 'VIII',
+        timing_start: '7:30 PM',
+        timing_end: '8:30 PM',
+        days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+        subjects: ['Maths', 'Science'],
+        fees: 8000,
+        createdBy: adminId
+      },
+      {
+        board: 'SSC',
+        standard: 'IX',
+        timing_start: '5:15 PM',
+        timing_end: '6:30 PM',
+        days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        subjects: ['Maths', 'Science'],
+        fees: 8500,
+        createdBy: adminId
+      },
+      {
+        board: 'SSC',
+        standard: 'X',
+        timing_start: '4:00 PM',
+        timing_end: '5:15 PM',
+        days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        subjects: ['Maths', 'Science'],
+        fees: 9000,
+        createdBy: adminId
+      },
+      // STATE
+      {
+        board: 'STATE',
+        standard: 'XI',
+        timing_start: '6:15 PM',
+        timing_end: '9:30 PM',
+        days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        subjects: ['PCMB', 'JEE', 'MHT-CET'],
+        fees: 18000,
+        createdBy: adminId
+      },
+      {
+        board: 'STATE',
+        standard: 'XII',
+        timing_start: '6:15 PM',
+        timing_end: '9:30 PM',
+        days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        subjects: ['PCMB', 'JEE', 'MHT-CET'],
+        fees: 25000,
+        createdBy: adminId
       }
     ];
 
     for (const courseData of courses) {
-      const existingCourse = await prisma.course.findFirst({
-        where: { title: courseData.title }
-      });
-
-      if (!existingCourse) {
-        await prisma.course.create({ data: courseData });
-        console.log(`Created course: ${courseData.title}`);
-      }
+      await prisma.course.create({ data: courseData });
+      console.log(`Created course: ${courseData.board} Class ${courseData.standard}`);
     }
 
     // Create sample test series

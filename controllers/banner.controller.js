@@ -17,8 +17,8 @@ const getActiveBanners = async (req, res, next) => {
         course: {
           select: {
             id: true,
-            title: true,
-            image: true
+            board: true,
+            standard: true
           }
         }
       },
@@ -52,7 +52,8 @@ const getAllBanners = async (req, res, next) => {
         course: {
           select: {
             id: true,
-            title: true
+            board: true,
+            standard: true
           }
         }
       },
@@ -89,7 +90,8 @@ const getBannerById = async (req, res, next) => {
         course: {
           select: {
             id: true,
-            title: true
+            board: true,
+            standard: true
           }
         }
       }

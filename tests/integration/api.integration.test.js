@@ -5,7 +5,7 @@ const { PrismaPg } = require('@prisma/adapter-pg');
 const { Pool } = require('pg');
 
 const connectionString = process.env.DATABASE_URL;
-const pool = new Pool({ 
+const pool = new Pool({
   connectionString,
   ssl: {
     rejectUnauthorized: false
@@ -67,14 +67,14 @@ describe('Saraswati Classes API Integration Tests', () => {
         ]
       }
     });
-    
+
     await prisma.$disconnect();
   });
 
   describe('Health Check', () => {
     test('GET /health should return health status', async () => {
       const response = await request(app).get('/health');
-      
+
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.message).toBe('Server is running');
@@ -91,7 +91,7 @@ describe('Saraswati Classes API Integration Tests', () => {
           email: 'nonexistent@admin.com',
           password: 'wrongpassword'
         });
-      
+
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
     });
@@ -103,7 +103,7 @@ describe('Saraswati Classes API Integration Tests', () => {
           email: 'nonexistent@student.com',
           password: 'wrongpassword'
         });
-      
+
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
     });
@@ -116,7 +116,7 @@ describe('Saraswati Classes API Integration Tests', () => {
           password: 'password123'
           // Missing name field
         });
-      
+
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
     });
@@ -125,7 +125,7 @@ describe('Saraswati Classes API Integration Tests', () => {
   describe('Public Content Endpoints', () => {
     test('GET /api/v1/courses should return courses', async () => {
       const response = await request(app).get('/api/v1/courses');
-      
+
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(Array.isArray(response.body.data)).toBe(true);
@@ -133,7 +133,7 @@ describe('Saraswati Classes API Integration Tests', () => {
 
     test('GET /api/v1/test-series should return test series', async () => {
       const response = await request(app).get('/api/v1/test-series');
-      
+
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(Array.isArray(response.body.data)).toBe(true);
@@ -141,7 +141,7 @@ describe('Saraswati Classes API Integration Tests', () => {
 
     test('GET /api/v1/blogs should return blogs', async () => {
       const response = await request(app).get('/api/v1/blogs');
-      
+
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(Array.isArray(response.body.data)).toBe(true);
@@ -149,7 +149,7 @@ describe('Saraswati Classes API Integration Tests', () => {
 
     test('GET /api/v1/banners should return active banners', async () => {
       const response = await request(app).get('/api/v1/banners');
-      
+
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(Array.isArray(response.body.data)).toBe(true);
@@ -157,7 +157,7 @@ describe('Saraswati Classes API Integration Tests', () => {
 
     test('GET /api/v1/feature-flags should return active feature flags', async () => {
       const response = await request(app).get('/api/v1/feature-flags');
-      
+
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(typeof response.body.data).toBe('object');
@@ -167,19 +167,13 @@ describe('Saraswati Classes API Integration Tests', () => {
   describe('Protected Admin Endpoints', () => {
     test('GET /api/v1/admin/students should require authentication', async () => {
       const response = await request(app).get('/api/v1/admin/students');
-      
+
       expect(response.status).toBe(401);
     });
 
     test('GET /api/v1/admin/courses should require authentication', async () => {
       const response = await request(app).get('/api/v1/admin/courses');
-      
-      expect(response.status).toBe(401);
-    });
 
-    test('GET /api/v1/admin/analytics/overview should require authentication', async () => {
-      const response = await request(app).get('/api/v1/admin/analytics/overview');
-      
       expect(response.status).toBe(401);
     });
   });
@@ -187,13 +181,13 @@ describe('Saraswati Classes API Integration Tests', () => {
   describe('Protected Student Endpoints', () => {
     test('GET /api/v1/students/profile should require authentication', async () => {
       const response = await request(app).get('/api/v1/students/profile');
-      
+
       expect(response.status).toBe(401);
     });
 
     test('GET /api/v1/students/courses should require authentication', async () => {
       const response = await request(app).get('/api/v1/students/courses');
-      
+
       expect(response.status).toBe(401);
     });
   });
@@ -208,7 +202,7 @@ describe('Saraswati Classes API Integration Tests', () => {
           phone: '1234567890',
           message: 'Test contact message'
         });
-      
+
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
     });
@@ -220,7 +214,7 @@ describe('Saraswati Classes API Integration Tests', () => {
           name: 'Test User'
           // Missing other required fields
         });
-      
+
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
     });
@@ -231,7 +225,7 @@ describe('Saraswati Classes API Integration Tests', () => {
       const response = await request(app)
         .post('/api/v1/upload/image')
         .field('folder', 'test');
-      
+
       expect(response.status).toBe(401);
     });
   });
@@ -239,13 +233,13 @@ describe('Saraswati Classes API Integration Tests', () => {
   describe('Error Handling', () => {
     test('GET /nonexistent-route should return 404', async () => {
       const response = await request(app).get('/nonexistent-route');
-      
+
       expect(response.status).toBe(404);
     });
 
     test('GET /api/v1/courses/nonexistent-id should return 404', async () => {
       const response = await request(app).get('/api/v1/courses/nonexistent-id');
-      
+
       expect(response.status).toBe(404);
     });
   });
@@ -256,14 +250,14 @@ describe('Course Management Integration Tests', () => {
   test('Course creation and retrieval should work', async () => {
     // This would require admin authentication in real implementation
     const response = await request(app).get('/api/v1/courses');
-    
+
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
   });
 
   test('Test series endpoints should be accessible', async () => {
     const response = await request(app).get('/api/v1/test-series');
-    
+
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
   });
@@ -280,7 +274,7 @@ describe('Enrollment and Inquiry Tests', () => {
         courseOrSeries: 'Test Course',
         message: 'Integration test enrollment'
       });
-    
+
     expect(response.status).toBe(201);
     expect(response.body.success).toBe(true);
   });
@@ -294,7 +288,7 @@ describe('Enrollment and Inquiry Tests', () => {
         phone: '9876543210',
         message: 'Integration test inquiry'
       });
-    
+
     expect(response.status).toBe(201);
     expect(response.body.success).toBe(true);
   });

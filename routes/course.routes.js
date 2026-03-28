@@ -8,22 +8,23 @@ const { authenticate, authorizeAdmin, authorizeRoles } = require('../utils/auth'
  * @swagger
  * /courses:
  *   get:
- *     summary: Get all courses
+ *     summary: Get all courses (grouped by board)
  *     tags: [Courses]
  *     parameters:
  *       - in: query
- *         name: category
+ *         name: board
  *         schema:
  *           type: string
- *         description: Filter by category
+ *           enum: [CBSE, SSC, STATE]
+ *         description: Filter by board
  *       - in: query
  *         name: search
  *         schema:
  *           type: string
- *         description: Search by title or description
+ *         description: Search by standard or subjects
  *     responses:
  *       200:
- *         description: Courses retrieved successfully
+ *         description: Courses retrieved successfully (grouped if no board filter)
  */
 router.get('/', courseController.getAllCourses);
 

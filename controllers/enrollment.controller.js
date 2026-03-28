@@ -211,12 +211,12 @@ const updateEnrollmentStatus = async (req, res, next) => {
     // If approved and student exists, create proper enrollment
     if (status === 'APPROVED' && enrollment.studentId) {
       // Check if it's a course or test series
-      const isCourse = await prisma.course.findFirst({
-        where: { 
-          title: { equals: enrollment.courseOrSeries, mode: 'insensitive' },
-          isActive: true 
-        }
-      });
+      // Find course by board and standard (e.g. "CBSE Class VIII")
+      const courses = await prisma.course.findMany({ where: { isActive: true } });
+      const isCourse = courses.find(c => 
+        `${c.board} Class ${c.standard}`.toLowerCase() === enrollment.courseOrSeries.toLowerCase() ||
+        `${c.board} - ${c.standard}`.toLowerCase() === enrollment.courseOrSeries.toLowerCase()
+      );
 
       const isTestSeries = await prisma.testSeries.findFirst({
         where: { 
@@ -468,14 +468,17 @@ const createEnrollment = async (req, res, next) => {
 
     if (courseId || courseTitle) {
       // Find course by ID or title
-      const course = courseId 
-        ? await prisma.course.findUnique({ where: { id: courseId, isActive: true } })
-        : await prisma.course.findFirst({ 
-            where: { 
-              title: { equals: courseTitle, mode: 'insensitive' }, 
-              isActive: true 
-            } 
-          });
+      // Find course by ID or board/standard
+      let course;
+      if (courseId) {
+        course = await prisma.course.findUnique({ where: { id: courseId, isActive: true } });
+      } else {
+        const courses = await prisma.course.findMany({ where: { isActive: true } });
+        course = courses.find(c => 
+          `${c.board} Class ${c.standard}`.toLowerCase() === courseTitle.toLowerCase() ||
+          `${c.board} - ${c.standard}`.toLowerCase() === courseTitle.toLowerCase()
+        );
+      }
 
       if (!course) {
         return res.status(404).json({

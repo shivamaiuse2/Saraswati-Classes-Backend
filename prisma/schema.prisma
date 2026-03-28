@@ -70,28 +70,23 @@ model StudentProfile {
 
 model Course {
   id              String             @id @default(uuid())
-  title           String
-  category        CourseCategory
-  description     String
-  fullDescription String
-  mode            String
-  image           String
-  timing          String
-  days            String
-  pricePerSubject Float
+  board           Board
+  standard        String             // VIII, IX, X, XI, XII
+  timing_start    String
+  timing_end      String
+  days            String[]
   subjects        String[]
-  duration        String?
-  demoVideoUrl    String?
+  fees            Float
+  isActive        Boolean            @default(true)
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   createdBy       String
-  isActive        Boolean            @default(true)
   bannerPosters   BannerPoster[]
   creator         User               @relation("CourseCreator", fields: [createdBy], references: [id])
   chapters        CourseChapter[]
   enrollments     CourseEnrollment[]
 
-  @@index([category])
+  @@index([board])
   @@index([createdBy])
 }
 
@@ -362,10 +357,10 @@ enum UserRole {
   STUDENT
 }
 
-enum CourseCategory {
-  FOUNDATION
-  SCIENCE
-  COMPETITIVE
+enum Board {
+  CBSE
+  SSC
+  STATE
 }
 
 enum EnrollmentStatus {

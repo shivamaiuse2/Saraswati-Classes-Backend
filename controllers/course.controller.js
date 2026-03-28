@@ -4,70 +4,77 @@ const logger = require('../utils/logger');
 // Get all courses (Public and Admin)
 const getAllCourses = async (req, res, next) => {
   try {
-    const { category, search, page = 1, limit = 10 } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const { board, search } = req.query;
 
     // Build where clause
     let where = { isActive: true };
 
-    if (category) {
-      where.category = category.toUpperCase();
+    if (board) {
+      where.board = board.toUpperCase();
     }
 
     if (search) {
       where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { fullDescription: { contains: search, mode: 'insensitive' } }
+        { standard: { contains: search, mode: 'insensitive' } },
+        { subjects: { hasSome: [search] } }
       ];
     }
 
-    // Get courses with pagination
-    const [courses, total] = await Promise.all([
-      prisma.course.findMany({
-        where,
-        include: {
-          chapters: {
-            orderBy: {
-              chapterNumber: 'asc'
-            }
-          },
-          creator: {
-            select: {
-              id: true,
-              email: true,
-              adminProfile: true
-            }
+    // Get all courses
+    const courses = await prisma.course.findMany({
+      where,
+      include: {
+        creator: {
+          select: {
+            id: true,
+            email: true,
+            adminProfile: true
           }
-        },
-        skip: parseInt(skip),
-        take: parseInt(limit),
-        orderBy: {
-          createdAt: 'desc'
         }
-      }),
-      prisma.course.count({ where })
-    ]);
+      },
+      orderBy: [
+        { board: 'asc' },
+        { createdAt: 'asc' } // Placeholder, will sort by standard manually below
+      ]
+    });
 
-    // Transform data for response
-    const coursesData = courses.map(course => {
-      const { createdBy, creator, ...courseData } = course;
+    // Helper for sorting standards
+    const standardOrder = ['VIII', 'IX', 'X', 'XI', 'XII'];
+    const sortCourses = (a, b) => {
+      const indexA = standardOrder.indexOf(a.standard);
+      const indexB = standardOrder.indexOf(b.standard);
+      return indexA - indexB;
+    };
+
+    // Transform and sort
+    const transformedCourses = courses.map(course => {
+      const { creator, ...courseData } = course;
       return {
         ...courseData,
         creator: creator?.adminProfile?.name || 'Admin'
       };
-    });
+    }).sort(sortCourses);
+
+    if (board) {
+      // Return single board if filtered
+      return res.status(200).json({
+        success: true,
+        message: `${board} courses retrieved successfully`,
+        data: transformedCourses
+      });
+    }
+
+    // Group by board for general request
+    const groupedCourses = {
+      CBSE: transformedCourses.filter(c => c.board === 'CBSE'),
+      SSC: transformedCourses.filter(c => c.board === 'SSC'),
+      STATE: transformedCourses.filter(c => c.board === 'STATE')
+    };
 
     res.status(200).json({
       success: true,
       message: 'Courses retrieved successfully',
-      data: coursesData,
-      meta: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        totalPages: Math.ceil(total / parseInt(limit))
-      }
+      data: groupedCourses
     });
   } catch (error) {
     logger.error('Get all courses error:', error);
@@ -137,93 +144,51 @@ const getCourseById = async (req, res, next) => {
 const createCourse = async (req, res, next) => {
   try {
     const {
-      title,
-      category: rawCategory,
-      description,
-      fullDescription,
-      mode,
-      image: rawImage,
-      timing,
+      board: rawBoard,
+      standard,
+      timing_start,
+      timing_end,
       days,
-      pricePerSubject,
       subjects,
-      duration,
-      demoVideoUrl,
-      chapters = []
+      fees,
+      isActive = true
     } = req.body;
 
-    const category = rawCategory ? rawCategory.toUpperCase() : '';
-    const image = rawImage || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60';
+    const board = rawBoard ? rawBoard.toUpperCase() : '';
 
     // Validate required fields
-    if (!title || !category || !description || !mode || !timing || !days || !pricePerSubject) {
+    if (!board || !standard || !timing_start || !timing_end || !days || !subjects || fees === undefined) {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields'
       });
     }
 
-    // Validate category
-    const validCategories = ['FOUNDATION', 'SCIENCE', 'COMPETITIVE'];
-    if (!validCategories.includes(category)) {
+    // Validate board
+    const validBoards = ['CBSE', 'SSC', 'STATE'];
+    if (!validBoards.includes(board)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid category. Must be FOUNDATION, SCIENCE, or COMPETITIVE'
+        message: 'Invalid board. Must be CBSE, SSC, or STATE'
       });
     }
 
-    // Check if course title already exists
-    const existingCourse = await prisma.course.findFirst({
-      where: { 
-        title: { equals: title, mode: 'insensitive' },
-        isActive: true 
-      }
-    });
-
-    if (existingCourse) {
-      return res.status(400).json({
-        success: false,
-        message: 'Course with this title already exists'
-      });
-    }
-
-    // Create course with chapters
+    // Create course
     const course = await prisma.course.create({
       data: {
-        title,
-        category,
-        description,
-        fullDescription: fullDescription || description,
-        mode,
-        image,
-        timing,
-        days,
-        pricePerSubject: parseFloat(pricePerSubject),
-        subjects: subjects || [],
-        duration: duration || null,
-        demoVideoUrl: demoVideoUrl || null,
-        createdBy: req.user.userId,
-        chapters: {
-          create: chapters.map((chapter, index) => ({
-            title: chapter.title,
-            description: chapter.description,
-            videoUrl: chapter.videoUrl || null,
-            testDescription: chapter.testDescription || null,
-            testLink: chapter.testLink || null,
-            chapterNumber: index + 1
-          }))
-        }
-      },
-      include: {
-        chapters: {
-          orderBy: {
-            chapterNumber: 'asc'
-          }
-        }
+        board,
+        standard,
+        timing_start,
+        timing_end,
+        days: Array.isArray(days) ? days : [days],
+        subjects: Array.isArray(subjects) ? subjects : [subjects],
+        fees: parseFloat(fees),
+        isActive: Boolean(isActive),
+        createdBy: req.user.userId
       }
     });
 
-    logger.info(`Course created: ${title} by ${req.user.email}`);
+    logger.info(`Course created: ${board} ${standard} by ${req.user.email}`);
 
     res.status(201).json({
       success: true,
@@ -241,18 +206,13 @@ const updateCourse = async (req, res, next) => {
   try {
     const { id } = req.params;
     const {
-      title,
-      category,
-      description,
-      fullDescription,
-      mode,
-      image,
-      timing,
+      board,
+      standard,
+      timing_start,
+      timing_end,
       days,
-      pricePerSubject,
       subjects,
-      duration,
-      demoVideoUrl,
+      fees,
       isActive
     } = req.body;
 
@@ -268,33 +228,15 @@ const updateCourse = async (req, res, next) => {
       });
     }
 
-    // Check if title is being changed and already exists
-    if (title && title !== existingCourse.title) {
-      const duplicateCourse = await prisma.course.findFirst({
-        where: { 
-          title: { equals: title, mode: 'insensitive' },
-          isActive: true,
-          NOT: { id }
-        }
-      });
-      
-      if (duplicateCourse) {
+    const upperBoard = board ? board.toUpperCase() : undefined;
+
+    // Validate board if provided
+    if (upperBoard) {
+      const validBoards = ['CBSE', 'SSC', 'STATE'];
+      if (!validBoards.includes(upperBoard)) {
         return res.status(400).json({
           success: false,
-          message: 'Course with this title already exists'
-        });
-      }
-    }
-
-    const upperCategory = category ? category.toUpperCase() : undefined;
-
-    // Validate category if provided
-    if (upperCategory) {
-      const validCategories = ['FOUNDATION', 'SCIENCE', 'COMPETITIVE'];
-      if (!validCategories.includes(upperCategory)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid category. Must be FOUNDATION, SCIENCE, or COMPETITIVE'
+          message: 'Invalid board. Must be CBSE, SSC, or STATE'
         });
       }
     }
@@ -303,30 +245,18 @@ const updateCourse = async (req, res, next) => {
     const updatedCourse = await prisma.course.update({
       where: { id },
       data: {
-        ...(title && { title }),
-        ...(upperCategory && { category: upperCategory }),
-        ...(description && { description }),
-        ...(fullDescription !== undefined && { fullDescription }),
-        ...(mode && { mode }),
-        ...(image && { image }),
-        ...(timing && { timing }),
-        ...(days && { days }),
-        ...(pricePerSubject && { pricePerSubject: parseFloat(pricePerSubject) }),
-        ...(subjects && { subjects }),
-        ...(duration !== undefined && { duration }),
-        ...(demoVideoUrl !== undefined && { demoVideoUrl }),
-        ...(isActive !== undefined && { isActive })
-      },
-      include: {
-        chapters: {
-          orderBy: {
-            chapterNumber: 'asc'
-          }
-        }
+        ...(upperBoard && { board: upperBoard }),
+        ...(standard && { standard }),
+        ...(timing_start && { timing_start }),
+        ...(timing_end && { timing_end }),
+        ...(days && { days: Array.isArray(days) ? days : [days] }),
+        ...(subjects && { subjects: Array.isArray(subjects) ? subjects : [subjects] }),
+        ...(fees !== undefined && { fees: parseFloat(fees) }),
+        ...(isActive !== undefined && { isActive: Boolean(isActive) })
       }
     });
 
-    logger.info(`Course updated: ${existingCourse.title} by ${req.user.email}`);
+    logger.info(`Course updated: ${id} by ${req.user.email}`);
 
     res.status(200).json({
       success: true,
@@ -362,7 +292,7 @@ const deleteCourse = async (req, res, next) => {
       data: { isActive: false }
     });
 
-    logger.info(`Course deleted: ${course.title} by ${req.user.email}`);
+    logger.info(`Course deleted: ${course.board} ${course.standard} by ${req.user.email}`);
 
     res.status(200).json({
       success: true,
@@ -418,7 +348,7 @@ const addChapter = async (req, res, next) => {
       }
     });
 
-    logger.info(`Chapter added to course ${course.title}: ${title}`);
+    logger.info(`Chapter added to course ${course.board} ${course.standard}: ${title}`);
 
     res.status(201).json({
       success: true,

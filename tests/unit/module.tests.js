@@ -31,16 +31,14 @@ const mockStudentData = {
 };
 
 const mockCourseData = {
-  title: 'Test Course',
-  category: 'FOUNDATION',
-  description: 'Test description',
-  fullDescription: 'Full test description',
-  mode: 'Online',
-  image: 'https://example.com/image.jpg',
-  timing: '9:00 AM - 10:00 AM',
-  days: 'Monday to Friday',
-  pricePerSubject: 5000,
-  subjects: ['Math', 'Science']
+  board: 'CBSE',
+  standard: 'X',
+  timing_start: '4:00 PM',
+  timing_end: '5:15 PM',
+  days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+  fees: 10500,
+  subjects: ['Maths', 'Science'],
+  isActive: true
 };
 
 const mockTestSeriesData = {
@@ -100,7 +98,7 @@ const testCourseManagement = async () => {
       }
     });
     
-    console.log('✓ Course created successfully:', course.title);
+    console.log('✓ Course created successfully:', `${course.board} ${course.standard}`);
     
     // Test adding chapters
     const chapter = await prisma.courseChapter.create({
@@ -151,7 +149,7 @@ const testEnrollmentSystem = async () => {
         email: 'enroller@example.com',
         phone: '0987654321',
         message: 'Test enrollment message',
-        courseOrSeries: 'Test Course',
+        courseOrSeries: 'CBSE - X',
         status: 'PENDING'
       }
     });

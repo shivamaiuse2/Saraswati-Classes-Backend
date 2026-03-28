@@ -190,7 +190,7 @@ const getCourseAnalytics = async (req, res, next) => {
       prisma.course.count({ where: { ...dateFilter } }),
       prisma.course.count({ where: { isActive: true, ...dateFilter } }),
       prisma.course.groupBy({
-        by: ['category'],
+        by: ['board'],
         where: { ...dateFilter },
         _count: true
       }),
@@ -219,12 +219,13 @@ const getCourseAnalytics = async (req, res, next) => {
     const analytics = {
       totalCourses,
       activeCourses,
-      coursesByCategory,
+      coursesByBoard: coursesByCategory.map(c => ({ board: c.board, count: c._count })),
       courseStats,
       topCourses: topCourses.map(course => ({
         id: course.id,
-        title: course.title,
-        category: course.category,
+        title: `${course.board} - ${course.standard}`,
+        board: course.board,
+        standard: course.standard,
         enrollmentCount: course._count.courseEnrollments
       }))
     };
