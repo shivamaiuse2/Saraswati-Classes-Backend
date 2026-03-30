@@ -1,0 +1,396 @@
+generator client {
+  provider   = "prisma-client-js"
+  output     = "../node_modules/.prisma/client"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                String          @id @default(uuid())
+  email             String          @unique
+  password          String
+  role              UserRole
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  adminProfile      AdminProfile?
+  createdBlogs      Blog[]          @relation("BlogCreator")
+  createdCourses    Course[]        @relation("CourseCreator")
+  enrollments       Enrollment[]    @relation("UserEnrollments")
+  createdGallery    GalleryItem[]   @relation("GalleryItemCreator")
+  inquiries         Inquiry[]
+  notifications     Notification[]
+  createdResources  Resource[]      @relation("ResourceCreator")
+  createdResults    Result[]        @relation("ResultCreator")
+  studentProfile    StudentProfile? @relation("StudentProfileUser")
+  createdTestSeries TestSeries[]    @relation("TestSeriesCreator")
+
+  @@index([role])
+}
+
+model AdminProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  name      String
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model StudentProfile {
+  id                    String                 @id @default(uuid())
+  userId                String                 @unique
+  name                  String
+  phone                 String?
+  address               String?
+  standard              String?
+  board                 String?
+  status                StudentStatus          @default(ACTIVE)
+  profileImage          String?
+  dateOfBirth           DateTime?
+  guardianName          String?
+  guardianPhone         String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  username              String?                @unique
+  plainPassword         String?
+  certificates          Certificate[]
+  courseEnrollments     CourseEnrollment[]
+  enrollments           Enrollment[]           @relation("StudentEnrollments")
+  results               Result[]               @relation("StudentResults")
+  user                  User                   @relation("StudentProfileUser", fields: [userId], references: [id], onDelete: Cascade)
+  testResults           TestResult[]
+  testSeriesEnrollments TestSeriesEnrollment[]
+
+  @@index([status])
+}
+
+model Course {
+  id              String             @id @default(uuid())
+  board           Board
+  standard        String             // VIII, IX, X, XI, XII
+  timing_start    String
+  timing_end      String
+  days            String[]
+  subjects        String[]
+  fees            Float
+  isActive        Boolean            @default(true)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  createdBy       String
+  bannerPosters   BannerPoster[]
+  creator         User               @relation("CourseCreator", fields: [createdBy], references: [id])
+  chapters        Chapter[]
+  enrollments     CourseEnrollment[]
+
+  @@index([board])
+  @@index([createdBy])
+}
+
+model Chapter {
+  id          String   @id @default(uuid())
+  courseId    String
+  title       String
+  description String
+  youtubeLink String?
+  formLink    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+}
+
+model TestSeries {
+  id                  String                 @id @default(uuid())
+  title               String
+  overview            String
+  features            String[]
+  testPattern         String
+  benefits            String[]
+  image               String
+  ctaLabel            String
+  demoTestLink        String
+  heroPosterThumbnail String
+  showInHeroPoster    Boolean                @default(false)
+  testsCount          Int
+  mode                TestSeriesMode
+  price               String
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  createdBy           String
+  isActive            Boolean                @default(true)
+  bannerPosters       BannerPoster[]
+  tests               Test[]
+  testResults         TestResult[]
+  creator             User                   @relation("TestSeriesCreator", fields: [createdBy], references: [id])
+  enrollments         TestSeriesEnrollment[]
+
+  @@index([createdBy])
+}
+
+model Test {
+  id           String     @id @default(uuid())
+  testSeriesId String
+  testNumber   Int
+  title        String
+  description  String?
+  testLink     String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  testSeries   TestSeries @relation(fields: [testSeriesId], references: [id], onDelete: Cascade)
+
+  @@index([testSeriesId])
+}
+
+model Enrollment {
+  id             String           @id @default(uuid())
+  name           String
+  email          String
+  phone          String
+  message        String
+  courseOrSeries String
+  status         EnrollmentStatus @default(PENDING)
+  studentId      String?
+  username       String?
+  password       String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  userId         String?
+  student        StudentProfile?  @relation("StudentEnrollments", fields: [studentId], references: [id])
+  user           User?            @relation("UserEnrollments", fields: [userId], references: [id])
+}
+
+model Inquiry {
+  id        String        @id @default(uuid())
+  name      String
+  email     String
+  phone     String
+  message   String
+  status    InquiryStatus @default(PENDING)
+  userId    String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  user      User?         @relation(fields: [userId], references: [id])
+}
+
+model Blog {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  image     String
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+  isActive  Boolean  @default(true)
+  creator   User     @relation("BlogCreator", fields: [createdBy], references: [id])
+
+  @@index([createdBy])
+}
+
+model Resource {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  price       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+  isActive    Boolean  @default(true)
+  creator     User     @relation("ResourceCreator", fields: [createdBy], references: [id])
+
+  @@index([createdBy])
+}
+
+model Result {
+  id        String          @id @default(uuid())
+  name      String
+  marks     String
+  exam      String
+  image     String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  createdBy String
+  isActive  Boolean         @default(true)
+  studentId String?
+  creator   User            @relation("ResultCreator", fields: [createdBy], references: [id])
+  student   StudentProfile? @relation("StudentResults", fields: [studentId], references: [id])
+
+  @@index([createdBy])
+  @@index([studentId])
+}
+
+model GalleryItem {
+  id        String   @id @default(uuid())
+  title     String
+  image     String
+  category  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+  isActive  Boolean  @default(true)
+  creator   User     @relation("GalleryItemCreator", fields: [createdBy], references: [id])
+
+  @@index([createdBy])
+}
+
+model BannerPoster {
+  id           String      @id @default(uuid())
+  imageUrl     String
+  testSeriesId String?
+  courseId     String?
+  enabled      Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  course       Course?     @relation(fields: [courseId], references: [id])
+  testSeries   TestSeries? @relation(fields: [testSeriesId], references: [id])
+
+  @@index([courseId])
+  @@index([testSeriesId])
+}
+
+model FeatureFlag {
+  id          String            @id @default(uuid())
+  name        String            @unique
+  description String
+  status      FeatureFlagStatus @default(ENABLED)
+  config      Json
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model PopupContent {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  ctaText     String
+  ctaLink     String
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CourseEnrollment {
+  id         String         @id @default(uuid())
+  studentId  String
+  courseId   String
+  enrolledAt DateTime       @default(now())
+  status     String         @default("ACTIVE")
+  course     Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student    StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
+}
+
+model TestSeriesEnrollment {
+  id           String         @id @default(uuid())
+  studentId    String
+  testSeriesId String
+  enrolledAt   DateTime       @default(now())
+  status       String         @default("ACTIVE")
+  student      StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  testSeries   TestSeries     @relation(fields: [testSeriesId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, testSeriesId])
+}
+
+model TestResult {
+  id            String         @id @default(uuid())
+  studentId     String
+  testSeriesId  String?
+  testName      String
+  marksObtained Int
+  totalMarks    Int
+  percentage    Float
+  grade         String?
+  testDate      DateTime       @default(now())
+  createdAt     DateTime       @default(now())
+  student       StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  testSeries    TestSeries?    @relation(fields: [testSeriesId], references: [id])
+
+  @@index([studentId])
+}
+
+model Certificate {
+  id             String         @id @default(uuid())
+  studentId      String
+  title          String
+  issuedDate     DateTime       @default(now())
+  certificateUrl String
+  createdAt      DateTime       @default(now())
+  student        StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  type      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  phone     String
+  message   String
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+enum UserRole {
+  ADMIN
+  STUDENT
+}
+
+enum Board {
+  CBSE
+  SSC
+  STATE
+}
+
+enum EnrollmentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TestSeriesMode {
+  ONLINE
+  OFFLINE
+  OMR_BASED
+  BOARD_STYLE
+}
+
+enum StudentStatus {
+  ACTIVE
+  BLOCKED
+}
+
+enum InquiryStatus {
+  PENDING
+  RESOLVED
+  FOLLOW_UP
+}
+
+enum BannerStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum FeatureFlagStatus {
+  ENABLED
+  DISABLED
+}

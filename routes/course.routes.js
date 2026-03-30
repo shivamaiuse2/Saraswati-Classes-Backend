@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/course.controller');
+const chapterController = require('../controllers/chapter.controller');
 const { authenticate, authorizeAdmin, authorizeRoles } = require('../utils/auth');
 // const { cacheMiddleware } = require('../utils/cache');
 
@@ -52,8 +53,8 @@ router.get('/:id', courseController.getCourseById);
 router.post('/', authenticate, authorizeAdmin, courseController.createCourse);
 router.put('/:id', authenticate, authorizeAdmin, courseController.updateCourse);
 router.delete('/:id', authenticate, authorizeAdmin, courseController.deleteCourse);
-router.post('/:id/chapters', authenticate, authorizeAdmin, courseController.addChapter);
-router.put('/chapters/:chapterId', authenticate, authorizeAdmin, courseController.updateChapter);
-router.delete('/chapters/:chapterId', authenticate, authorizeAdmin, courseController.deleteChapter);
+// Chapters sub-resource
+router.post('/:courseId/chapters', authenticate, authorizeAdmin, chapterController.createChapter);
+router.get('/:courseId/chapters', authenticate, chapterController.getCourseChapters);
 
 module.exports = router;

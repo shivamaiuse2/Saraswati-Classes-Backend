@@ -34,7 +34,7 @@ const getAllCourses = async (req, res, next) => {
       },
       orderBy: [
         { board: 'asc' },
-        { createdAt: 'asc' } // Placeholder, will sort by standard manually below
+        { createdAt: 'asc' } 
       ]
     });
 
@@ -55,8 +55,15 @@ const getAllCourses = async (req, res, next) => {
       };
     }).sort(sortCourses);
 
+    // Add chapter counts to ALL transformed courses first
+    for (const course of transformedCourses) {
+      course.chapterCount = await prisma.chapter.count({
+        where: { courseId: course.id }
+      });
+    }
+    console.log('TRANSFORMED COURSE SAMPLE:', transformedCourses[0]);
+
     if (board) {
-      // Return single board if filtered
       return res.status(200).json({
         success: true,
         message: `${board} courses retrieved successfully`,
@@ -73,7 +80,7 @@ const getAllCourses = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: 'Courses retrieved successfully',
+      message: 'Courses with counts retrieved successfully',
       data: groupedCourses
     });
   } catch (error) {
@@ -91,8 +98,17 @@ const getCourseById = async (req, res, next) => {
       where: { id },
       include: {
         chapters: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            youtubeLink: true,
+            formLink: true,
+            createdAt: true,
+            updatedAt: true
+          },
           orderBy: {
-            chapterNumber: 'asc'
+            createdAt: 'asc'
           }
         },
         creator: {
@@ -330,21 +346,17 @@ const addChapter = async (req, res, next) => {
       });
     }
 
-    // Get next chapter number
-    const chapterCount = await prisma.courseChapter.count({
-      where: { courseId: id }
-    });
+    // Get next chapter number (if still using it, but prompt says new fields)
+    // Actually, prompt doesn't ask for chapterNumber, but I'll skip it for Chapter model
 
     // Create chapter
-    const chapter = await prisma.courseChapter.create({
+    const chapter = await prisma.chapter.create({
       data: {
         courseId: id,
         title,
         description,
-        videoUrl: videoUrl || null,
-        testDescription: testDescription || null,
-        testLink: testLink || null,
-        chapterNumber: chapterCount + 1
+        youtubeLink: youtubeLink || null,
+        formLink: formLink || null
       }
     });
 
@@ -365,10 +377,10 @@ const addChapter = async (req, res, next) => {
 const updateChapter = async (req, res, next) => {
   try {
     const { chapterId } = req.params;
-    const { title, description, videoUrl, testDescription, testLink } = req.body;
+    const { title, description, youtubeLink, formLink } = req.body;
 
     // Check if chapter exists
-    const chapter = await prisma.courseChapter.findUnique({
+    const chapter = await prisma.chapter.findUnique({
       where: { id: chapterId }
     });
 
@@ -380,14 +392,13 @@ const updateChapter = async (req, res, next) => {
     }
 
     // Update chapter
-    const updatedChapter = await prisma.courseChapter.update({
+    const updatedChapter = await prisma.chapter.update({
       where: { id: chapterId },
       data: {
         ...(title && { title }),
         ...(description && { description }),
-        ...(videoUrl !== undefined && { videoUrl }),
-        ...(testDescription !== undefined && { testDescription }),
-        ...(testLink !== undefined && { testLink })
+        ...(youtubeLink !== undefined && { youtubeLink }),
+        ...(formLink !== undefined && { formLink })
       }
     });
 
@@ -410,7 +421,7 @@ const deleteChapter = async (req, res, next) => {
     const { chapterId } = req.params;
 
     // Check if chapter exists
-    const chapter = await prisma.courseChapter.findUnique({
+    const chapter = await prisma.chapter.findUnique({
       where: { id: chapterId }
     });
 
@@ -422,23 +433,9 @@ const deleteChapter = async (req, res, next) => {
     }
 
     // Delete chapter
-    await prisma.courseChapter.delete({
+    await prisma.chapter.delete({
       where: { id: chapterId }
     });
-
-    // Reorder remaining chapters
-    const remainingChapters = await prisma.courseChapter.findMany({
-      where: { courseId: chapter.courseId },
-      orderBy: { chapterNumber: 'asc' }
-    });
-
-    // Update chapter numbers
-    for (let i = 0; i < remainingChapters.length; i++) {
-      await prisma.courseChapter.update({
-        where: { id: remainingChapters[i].id },
-        data: { chapterNumber: i + 1 }
-      });
-    }
 
     logger.info(`Chapter deleted: ${chapter.title}`);
 
