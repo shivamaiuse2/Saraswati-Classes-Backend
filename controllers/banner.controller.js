@@ -1,62 +1,10 @@
 const prisma = require('../config/prisma');
 const logger = require('../utils/logger');
 
-// Get active banners (Public)
-const getActiveBanners = async (req, res, next) => {
-  try {
-    const banners = await prisma.bannerPoster.findMany({
-      where: { enabled: true },
-      include: {
-        testSeries: {
-          select: {
-            id: true,
-            title: true,
-            image: true
-          }
-        },
-        course: {
-          select: {
-            id: true,
-            board: true,
-            standard: true
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
-
-    res.status(200).json({
-      success: true,
-      message: 'Banners retrieved successfully',
-      data: banners
-    });
-  } catch (error) {
-    logger.error('Get active banners error:', error);
-    next(error);
-  }
-};
-
-// Get all banners (Admin)
+// Get all banners (Public)
 const getAllBanners = async (req, res, next) => {
   try {
-    const banners = await prisma.bannerPoster.findMany({
-      include: {
-        testSeries: {
-          select: {
-            id: true,
-            title: true
-          }
-        },
-        course: {
-          select: {
-            id: true,
-            board: true,
-            standard: true
-          }
-        }
-      },
+    const banners = await prisma.banner.findMany({
       orderBy: {
         createdAt: 'desc'
       }
@@ -78,23 +26,8 @@ const getBannerById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const banner = await prisma.bannerPoster.findUnique({
-      where: { id },
-      include: {
-        testSeries: {
-          select: {
-            id: true,
-            title: true
-          }
-        },
-        course: {
-          select: {
-            id: true,
-            board: true,
-            standard: true
-          }
-        }
-      }
+    const banner = await prisma.banner.findUnique({
+      where: { id }
     });
 
     if (!banner) {
@@ -118,48 +51,56 @@ const getBannerById = async (req, res, next) => {
 // Create banner (Admin)
 const createBanner = async (req, res, next) => {
   try {
-    const { imageUrl, testSeriesId, courseId, enabled = true } = req.body;
+    const { imageUrl, title, subtitle, category, referenceId } = req.body;
 
     // Validate required fields
-    if (!imageUrl) {
+    if (!imageUrl || !title || !subtitle || !category || !referenceId) {
       return res.status(400).json({
         success: false,
-        message: 'Image URL is required'
+        message: 'All fields (imageUrl, title, subtitle, category, referenceId) are required'
       });
     }
 
-    // Verify testSeries or course exists if provided
-    if (testSeriesId) {
-      const testSeries = await prisma.testSeries.findUnique({
-        where: { id: testSeriesId, isActive: true }
+    // Validate category
+    const validCategories = ['COURSE', 'TEST_SERIES'];
+    if (!validCategories.includes(category)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid category. Must be COURSE or TEST_SERIES'
       });
-      if (!testSeries) {
-        return res.status(400).json({
-          success: false,
-          message: 'Test series not found or not active'
-        });
-      }
     }
 
-    if (courseId) {
+    // Conditional Validation: Verify referenceId exists in the respective table
+    if (category === 'COURSE') {
       const course = await prisma.course.findUnique({
-        where: { id: courseId, isActive: true }
+        where: { id: referenceId }
       });
       if (!course) {
-        return res.status(400).json({
+        return res.status(404).json({
           success: false,
-          message: 'Course not found or not active'
+          message: 'Course not found with the provided referenceId'
+        });
+      }
+    } else if (category === 'TEST_SERIES') {
+      const testSeries = await prisma.testSeries.findUnique({
+        where: { id: referenceId }
+      });
+      if (!testSeries) {
+        return res.status(404).json({
+          success: false,
+          message: 'Test Series not found with the provided referenceId'
         });
       }
     }
 
     // Create banner
-    const banner = await prisma.bannerPoster.create({
+    const banner = await prisma.banner.create({
       data: {
         imageUrl,
-        testSeriesId: testSeriesId || null,
-        courseId: courseId || null,
-        enabled
+        title,
+        subtitle,
+        category,
+        referenceId
       }
     });
 
@@ -180,10 +121,10 @@ const createBanner = async (req, res, next) => {
 const updateBanner = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { imageUrl, testSeriesId, courseId, enabled } = req.body;
+    const { imageUrl, title, subtitle, category, referenceId } = req.body;
 
     // Check if banner exists
-    const banner = await prisma.bannerPoster.findUnique({
+    const banner = await prisma.banner.findUnique({
       where: { id }
     });
 
@@ -194,39 +135,43 @@ const updateBanner = async (req, res, next) => {
       });
     }
 
-    // Verify testSeries or course exists if provided
-    if (testSeriesId) {
-      const testSeries = await prisma.testSeries.findUnique({
-        where: { id: testSeriesId, isActive: true }
-      });
-      if (!testSeries) {
-        return res.status(400).json({
-          success: false,
-          message: 'Test series not found or not active'
-        });
-      }
-    }
+    // If category or referenceId is being updated, validate again
+    const finalCategory = category || banner.category;
+    const finalReferenceId = referenceId || banner.referenceId;
 
-    if (courseId) {
-      const course = await prisma.course.findUnique({
-        where: { id: courseId, isActive: true }
-      });
-      if (!course) {
-        return res.status(400).json({
-          success: false,
-          message: 'Course not found or not active'
+    if (category || referenceId) {
+      if (finalCategory === 'COURSE') {
+        const course = await prisma.course.findUnique({
+          where: { id: finalReferenceId }
         });
+        if (!course) {
+          return res.status(404).json({
+            success: false,
+            message: 'Course not found with the provided referenceId'
+          });
+        }
+      } else if (finalCategory === 'TEST_SERIES') {
+        const testSeries = await prisma.testSeries.findUnique({
+          where: { id: finalReferenceId }
+        });
+        if (!testSeries) {
+          return res.status(404).json({
+            success: false,
+            message: 'Test Series not found with the provided referenceId'
+          });
+        }
       }
     }
 
     // Update banner
-    const updatedBanner = await prisma.bannerPoster.update({
+    const updatedBanner = await prisma.banner.update({
       where: { id },
       data: {
         ...(imageUrl && { imageUrl }),
-        ...(testSeriesId !== undefined && { testSeriesId: testSeriesId || null }),
-        ...(courseId !== undefined && { courseId: courseId || null }),
-        ...(enabled !== undefined && { enabled })
+        ...(title && { title }),
+        ...(subtitle && { subtitle }),
+        ...(category && { category }),
+        ...(referenceId && { referenceId })
       }
     });
 
@@ -249,7 +194,7 @@ const deleteBanner = async (req, res, next) => {
     const { id } = req.params;
 
     // Check if banner exists
-    const banner = await prisma.bannerPoster.findUnique({
+    const banner = await prisma.banner.findUnique({
       where: { id }
     });
 
@@ -261,7 +206,7 @@ const deleteBanner = async (req, res, next) => {
     }
 
     // Delete banner
-    await prisma.bannerPoster.delete({
+    await prisma.banner.delete({
       where: { id }
     });
 
@@ -578,9 +523,8 @@ const updatePopupContent = async (req, res, next) => {
 };
 
 module.exports = {
-  getActiveBanners,
-  getAllBanners,
   getBannerById,
+  getAllBanners,
   createBanner,
   updateBanner,
   deleteBanner,

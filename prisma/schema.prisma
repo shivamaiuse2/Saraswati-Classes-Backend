@@ -80,7 +80,6 @@ model Course {
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   createdBy       String
-  bannerPosters   BannerPoster[]
   creator         User               @relation("CourseCreator", fields: [createdBy], references: [id])
   chapters        Chapter[]
   enrollments     CourseEnrollment[]
@@ -123,7 +122,6 @@ model TestSeries {
   updatedAt           DateTime               @updatedAt
   createdBy           String
   isActive            Boolean                @default(true)
-  bannerPosters       BannerPoster[]
   tests               Test[]
   testResults         TestResult[]
   creator             User                   @relation("TestSeriesCreator", fields: [createdBy], references: [id])
@@ -225,19 +223,20 @@ model GalleryItem {
   @@index([createdBy])
 }
 
-model BannerPoster {
-  id           String      @id @default(uuid())
-  imageUrl     String
-  testSeriesId String?
-  courseId     String?
-  enabled      Boolean     @default(true)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  course       Course?     @relation(fields: [courseId], references: [id])
-  testSeries   TestSeries? @relation(fields: [testSeriesId], references: [id])
+model Banner {
+  id          String         @id @default(uuid())
+  imageUrl    String
+  title       String
+  subtitle    String
+  category    BannerCategory
+  referenceId String // ID of Course or Test Series
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
 
-  @@index([courseId])
-  @@index([testSeriesId])
+enum BannerCategory {
+  COURSE
+  TEST_SERIES
 }
 
 model FeatureFlag {

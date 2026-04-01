@@ -7,31 +7,35 @@ const { authenticate, authorizeAdmin } = require('../utils/auth');
  * @swagger
  * /banners:
  *   get:
- *     summary: Get all active banners (Public)
+ *     summary: Get all banners (Public)
  *     tags: [Banners]
  *     responses:
  *       200:
  *         description: Banners retrieved successfully
  */
-router.get('/', bannerController.getActiveBanners);
+router.get('/', bannerController.getAllBanners);
 
 /**
  * @swagger
- * /admin/banners:
+ * /banners/{id}:
  *   get:
- *     summary: Get all banners (Admin)
+ *     summary: Get banner by ID
  *     tags: [Banners]
- *     security:
- *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
- *         description: Banners retrieved successfully
+ *         description: Banner retrieved successfully
  */
-router.get('/admin/banners', authenticate, authorizeAdmin, bannerController.getAllBanners);
+router.get('/:id', bannerController.getBannerById);
 
 /**
  * @swagger
- * /admin/banners:
+ * /banners:
  *   post:
  *     summary: Create banner (Admin)
  *     tags: [Banners]
@@ -45,24 +49,31 @@ router.get('/admin/banners', authenticate, authorizeAdmin, bannerController.getA
  *             type: object
  *             required:
  *               - imageUrl
+ *               - title
+ *               - subtitle
+ *               - category
+ *               - referenceId
  *             properties:
  *               imageUrl:
  *                 type: string
- *               testSeriesId:
+ *               title:
  *                 type: string
- *               courseId:
+ *               subtitle:
  *                 type: string
- *               enabled:
- *                 type: boolean
+ *               category:
+ *                 type: string
+ *                 enum: [COURSE, TEST_SERIES]
+ *               referenceId:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Banner created successfully
  */
-router.post('/admin/banners', authenticate, authorizeAdmin, bannerController.createBanner);
+router.post('/', authenticate, authorizeAdmin, bannerController.createBanner);
 
 /**
  * @swagger
- * /admin/banners/{id}:
+ * /banners/{id}:
  *   put:
  *     summary: Update banner (Admin)
  *     tags: [Banners]
@@ -83,21 +94,24 @@ router.post('/admin/banners', authenticate, authorizeAdmin, bannerController.cre
  *             properties:
  *               imageUrl:
  *                 type: string
- *               testSeriesId:
+ *               title:
  *                 type: string
- *               courseId:
+ *               subtitle:
  *                 type: string
- *               enabled:
- *                 type: boolean
+ *               category:
+ *                 type: string
+ *                 enum: [COURSE, TEST_SERIES]
+ *               referenceId:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Banner updated successfully
  */
-router.put('/admin/banners/:id', authenticate, authorizeAdmin, bannerController.updateBanner);
+router.put('/:id', authenticate, authorizeAdmin, bannerController.updateBanner);
 
 /**
  * @swagger
- * /admin/banners/{id}:
+ * /banners/{id}:
  *   delete:
  *     summary: Delete banner (Admin)
  *     tags: [Banners]
@@ -113,11 +127,11 @@ router.put('/admin/banners/:id', authenticate, authorizeAdmin, bannerController.
  *       200:
  *         description: Banner deleted successfully
  */
-router.delete('/admin/banners/:id', authenticate, authorizeAdmin, bannerController.deleteBanner);
+router.delete('/:id', authenticate, authorizeAdmin, bannerController.deleteBanner);
 
 /**
  * @swagger
- * /feature-flags:
+ * /banners/feature-flags:
  *   get:
  *     summary: Get all active feature flags (Public)
  *     tags: [Feature Flags]
@@ -129,7 +143,7 @@ router.get('/feature-flags', bannerController.getActiveFeatureFlags);
 
 /**
  * @swagger
- * /admin/feature-flags:
+ * /banners/admin/feature-flags:
  *   get:
  *     summary: Get all feature flags (Admin)
  *     tags: [Feature Flags]
@@ -143,7 +157,7 @@ router.get('/admin/feature-flags', authenticate, authorizeAdmin, bannerControlle
 
 /**
  * @swagger
- * /admin/feature-flags:
+ * /banners/admin/feature-flags:
  *   post:
  *     summary: Create feature flag (Admin)
  *     tags: [Feature Flags]
@@ -176,7 +190,7 @@ router.post('/admin/feature-flags', authenticate, authorizeAdmin, bannerControll
 
 /**
  * @swagger
- * /admin/feature-flags/{id}:
+ * /banners/admin/feature-flags/{id}:
  *   put:
  *     summary: Update feature flag (Admin)
  *     tags: [Feature Flags]
@@ -212,7 +226,7 @@ router.put('/admin/feature-flags/:id', authenticate, authorizeAdmin, bannerContr
 
 /**
  * @swagger
- * /admin/feature-flags/{id}:
+ * /banners/admin/feature-flags/{id}:
  *   delete:
  *     summary: Delete feature flag (Admin)
  *     tags: [Feature Flags]
@@ -232,7 +246,7 @@ router.delete('/admin/feature-flags/:id', authenticate, authorizeAdmin, bannerCo
 
 /**
  * @swagger
- * /popup:
+ * /banners/popup:
  *   get:
  *     summary: Get popup content (Public)
  *     tags: [Popup]
@@ -244,7 +258,7 @@ router.get('/popup', bannerController.getPopupContent);
 
 /**
  * @swagger
- * /admin/popup:
+ * /banners/admin/popup:
  *   get:
  *     summary: Get popup content (Admin)
  *     tags: [Popup]
@@ -258,7 +272,7 @@ router.get('/admin/popup', authenticate, authorizeAdmin, bannerController.getAdm
 
 /**
  * @swagger
- * /admin/popup:
+ * /banners/admin/popup:
  *   put:
  *     summary: Update popup content (Admin)
  *     tags: [Popup]
