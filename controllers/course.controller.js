@@ -34,7 +34,7 @@ const getAllCourses = async (req, res, next) => {
       },
       orderBy: [
         { board: 'asc' },
-        { createdAt: 'asc' } 
+        { createdAt: 'asc' }
       ]
     });
 
@@ -75,7 +75,7 @@ const getAllCourses = async (req, res, next) => {
     const groupedCourses = {
       CBSE: transformedCourses.filter(c => c.board === 'CBSE'),
       SSC: transformedCourses.filter(c => c.board === 'SSC'),
-      STATE: transformedCourses.filter(c => c.board === 'STATE')
+      HSC: transformedCourses.filter(c => c.board === 'HSC')
     };
 
     res.status(200).json({
@@ -140,7 +140,7 @@ const getCourseById = async (req, res, next) => {
 
     // Transform data for response
     const { createdBy, creator, ...courseData } = course;
-    
+
     res.status(200).json({
       success: true,
       message: 'Course retrieved successfully',
@@ -181,11 +181,11 @@ const createCourse = async (req, res, next) => {
     }
 
     // Validate board
-    const validBoards = ['CBSE', 'SSC', 'STATE'];
+    const validBoards = ['CBSE', 'SSC', 'HSC'];
     if (!validBoards.includes(board)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid board. Must be CBSE, SSC, or STATE'
+        message: 'Invalid board. Must be CBSE, SSC, or HSC'
       });
     }
 
@@ -248,11 +248,11 @@ const updateCourse = async (req, res, next) => {
 
     // Validate board if provided
     if (upperBoard) {
-      const validBoards = ['CBSE', 'SSC', 'STATE'];
+      const validBoards = ['CBSE', 'SSC', 'HSC'];
       if (!validBoards.includes(upperBoard)) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid board. Must be CBSE, SSC, or STATE'
+          message: 'Invalid board. Must be CBSE, SSC, or HSC'
         });
       }
     }

@@ -345,7 +345,7 @@ enum UserRole {
 enum Board {
   CBSE
   SSC
-  STATE
+  HSC
 }
 
 enum EnrollmentStatus {

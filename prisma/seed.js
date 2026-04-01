@@ -98,9 +98,9 @@ const seedDatabase = async () => {
         fees: 9000,
         createdBy: adminId
       },
-      // STATE
+      // HSC
       {
-        board: 'STATE',
+        board: 'HSC',
         standard: 'XI',
         timing_start: '6:15 PM',
         timing_end: '9:30 PM',
@@ -110,7 +110,7 @@ const seedDatabase = async () => {
         createdBy: adminId
       },
       {
-        board: 'STATE',
+        board: 'HSC',
         standard: 'XII',
         timing_start: '6:15 PM',
         timing_end: '9:30 PM',

@@ -16,7 +16,7 @@ const { authenticate, authorizeAdmin, authorizeRoles } = require('../utils/auth'
  *         name: board
  *         schema:
  *           type: string
- *           enum: [CBSE, SSC, STATE]
+ *           enum: [CBSE, SSC, HSC]
  *         description: Filter by board
  *       - in: query
  *         name: search
