@@ -1,100 +1,6 @@
 const prisma = require('../config/prisma');
 const logger = require('../utils/logger');
 
-// Get dashboard overview (Admin)
-const getDashboardOverview = async (req, res, next) => {
-  try {
-    // Get counts for various entities
-    const [
-      totalStudents,
-      totalCourses,
-      totalTestSeries,
-      totalEnrollments,
-      totalPendingEnrollments,
-      totalInquiries,
-      totalPendingInquiries
-    ] = await Promise.all([
-      prisma.studentProfile.count(),
-      prisma.course.count({ where: { isActive: true } }),
-      prisma.testSeries.count({ where: { isActive: true } }),
-      prisma.courseEnrollment.count() + prisma.testSeriesEnrollment.count(),
-      prisma.enrollment.count({ where: { status: 'PENDING' } }),
-      prisma.inquiry.count(),
-      prisma.inquiry.count({ where: { status: 'PENDING' } })
-    ]);
-
-    // Get recent activity
-    const recentStudents = await prisma.studentProfile.findMany({
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        user: {
-          select: {
-            email: true,
-            createdAt: true
-          }
-        }
-      }
-    });
-
-    const recentEnrollments = await prisma.enrollment.findMany({
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        student: {
-          select: {
-            name: true
-          }
-        }
-      }
-    });
-
-    const recentInquiries = await prisma.inquiry.findMany({
-      take: 5,
-      orderBy: { createdAt: 'desc' }
-    });
-
-    const overview = {
-      totalStudents,
-      totalCourses,
-      totalTestSeries,
-      totalEnrollments,
-      pendingEnrollments: totalPendingEnrollments,
-      totalInquiries,
-      pendingInquiries: totalPendingInquiries,
-      recentActivity: {
-        recentStudents: recentStudents.map(s => ({
-          id: s.id,
-          name: s.name,
-          email: s.user.email,
-          date: s.createdAt
-        })),
-        recentEnrollments: recentEnrollments.map(e => ({
-          id: e.id,
-          name: e.name,
-          courseOrSeries: e.courseOrSeries,
-          date: e.createdAt
-        })),
-        recentInquiries: recentInquiries.map(i => ({
-          id: i.id,
-          name: i.name,
-          email: i.email,
-          date: i.createdAt
-        }))
-      }
-    };
-
-    res.status(200).json({
-      success: true,
-      message: 'Dashboard overview retrieved successfully',
-      data: overview
-    });
-  } catch (error) {
-    logger.error('Get dashboard overview error:', error);
-    next(error);
-  }
-};
-
 // Get student analytics (Admin)
 const getStudentAnalytics = async (req, res, next) => {
   try {
@@ -578,7 +484,6 @@ const getRevenueAnalytics = async (req, res, next) => {
 };
 
 module.exports = {
-  getDashboardOverview,
   getStudentAnalytics,
   getCourseAnalytics,
   getTestSeriesAnalytics,

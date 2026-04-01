@@ -5,20 +5,6 @@ const { authenticate, authorizeAdmin } = require('../utils/auth');
 
 /**
  * @swagger
- * /admin/analytics/overview:
- *   get:
- *     summary: Get dashboard overview (Admin)
- *     tags: [Analytics]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Analytics overview retrieved successfully
- */
-router.get('/admin/analytics/overview', authenticate, authorizeAdmin, analyticsController.getDashboardOverview);
-
-/**
- * @swagger
  * /admin/analytics/students:
  *   get:
  *     summary: Get student analytics (Admin)
