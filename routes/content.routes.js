@@ -54,33 +54,6 @@ router.get('/blogs/:id', contentController.getBlogById);
 
 /**
  * @swagger
- * /resources:
- *   get:
- *     summary: Get all resources (Public)
- *     tags: [Content]
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *       - in: query
- *         name: search
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Resources retrieved successfully
- */
-router.get('/resources', contentController.getAllResources);
-
-/**
- * @swagger
  * /gallery:
  *   get:
  *     summary: Get all gallery items (Public)
@@ -245,11 +218,6 @@ router.put('/admin/blogs/:id', authenticate, authorizeAdmin, contentController.u
  */
 router.delete('/admin/blogs/:id', authenticate, authorizeAdmin, contentController.deleteBlog);
 
-// Admin resources routes
-router.get('/admin/resources', authenticate, authorizeAdmin, contentController.getAdminResources);
-router.post('/admin/resources', authenticate, authorizeAdmin, contentController.createResource);
-router.put('/admin/resources/:id', authenticate, authorizeAdmin, contentController.updateResource);
-router.delete('/admin/resources/:id', authenticate, authorizeAdmin, contentController.deleteResource);
 
 // Admin gallery routes
 router.get('/admin/gallery', authenticate, authorizeAdmin, contentController.getAdminGallery);

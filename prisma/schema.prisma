@@ -22,7 +22,6 @@ model User {
   createdGallery    GalleryItem[]   @relation("GalleryItemCreator")
   inquiries         Inquiry[]
   notifications     Notification[]
-  createdResources  Resource[]      @relation("ResourceCreator")
   createdResults    Result[]        @relation("ResultCreator")
   studentProfile    StudentProfile? @relation("StudentProfileUser")
   createdTestSeries TestSeries[]    @relation("TestSeriesCreator")
@@ -193,19 +192,6 @@ model Blog {
   @@index([createdBy])
 }
 
-model Resource {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  price       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   String
-  isActive    Boolean  @default(true)
-  creator     User     @relation("ResourceCreator", fields: [createdBy], references: [id])
-
-  @@index([createdBy])
-}
 
 model Result {
   id        String          @id @default(uuid())

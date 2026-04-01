@@ -50,12 +50,6 @@ router.post('/blogs', authenticate, authorizeAdmin, contentController.createBlog
 router.put('/blogs/:id', authenticate, authorizeAdmin, contentController.updateBlog);
 router.delete('/blogs/:id', authenticate, authorizeAdmin, contentController.deleteBlog);
 
-router.get('/resources', authenticate, authorizeAdmin, contentController.getAllResources);
-router.get('/resources/:id', authenticate, authorizeAdmin, contentController.getResourceById);
-router.post('/resources', authenticate, authorizeAdmin, contentController.createResource);
-router.put('/resources/:id', authenticate, authorizeAdmin, contentController.updateResource);
-router.delete('/resources/:id', authenticate, authorizeAdmin, contentController.deleteResource);
-
 router.get('/gallery', authenticate, authorizeAdmin, contentController.getGalleryItems);
 router.get('/gallery/:id', authenticate, authorizeAdmin, contentController.getGalleryItemById);
 router.post('/gallery', authenticate, authorizeAdmin, contentController.createGalleryItem);

@@ -107,70 +107,6 @@ const getBlogById = async (req, res, next) => {
   }
 };
 
-// Get all resources (Public)
-const getAllResources = async (req, res, next) => {
-  try {
-    const { search, page = 1, limit = 10 } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-
-    // Build where clause
-    let where = { isActive: true };
-
-    if (search) {
-      where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } }
-      ];
-    }
-
-    // Get resources with pagination
-    const [resources, total] = await Promise.all([
-      prisma.resource.findMany({
-        where,
-        include: {
-          creator: {
-            select: {
-              id: true,
-              email: true,
-              adminProfile: true
-            }
-          }
-        },
-        skip: parseInt(skip),
-        take: parseInt(limit),
-        orderBy: {
-          createdAt: 'desc'
-        }
-      }),
-      prisma.resource.count({ where })
-    ]);
-
-    // Transform data for response
-    const resourcesData = resources.map(resource => {
-      const { createdBy, creator, ...resourceData } = resource;
-      return {
-        ...resourceData,
-        author: creator?.adminProfile?.name || 'Admin'
-      };
-    });
-
-    res.status(200).json({
-      success: true,
-      message: 'Resources retrieved successfully',
-      data: resourcesData,
-      meta: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        totalPages: Math.ceil(total / parseInt(limit))
-      }
-    });
-  } catch (error) {
-    logger.error('Get all resources error:', error);
-    next(error);
-  }
-};
-
 // Get gallery items (Public)
 const getGalleryItems = async (req, res, next) => {
   try {
@@ -485,159 +421,6 @@ const deleteBlog = async (req, res, next) => {
   }
 };
 
-// Similar functions for resources, gallery, and results...
-// (These would follow the same pattern as blogs above)
-
-const getAdminResources = async (req, res, next) => {
-  try {
-    const { page = 1, limit = 10 } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-
-    const [resources, total] = await Promise.all([
-      prisma.resource.findMany({
-        include: {
-          creator: {
-            select: {
-              id: true,
-              email: true,
-              adminProfile: true
-            }
-          }
-        },
-        skip: parseInt(skip),
-        take: parseInt(limit),
-        orderBy: {
-          createdAt: 'desc'
-        }
-      }),
-      prisma.resource.count()
-    ]);
-
-    res.status(200).json({
-      success: true,
-      message: 'Resources retrieved successfully',
-      data: resources,
-      meta: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        totalPages: Math.ceil(total / parseInt(limit))
-      }
-    });
-  } catch (error) {
-    logger.error('Get admin resources error:', error);
-    next(error);
-  }
-};
-
-const createResource = async (req, res, next) => {
-  try {
-    const { title, description, price } = req.body;
-
-    if (!title || !description) {
-      return res.status(400).json({
-        success: false,
-        message: 'Title and description are required'
-      });
-    }
-
-    const resource = await prisma.resource.create({
-      data: {
-        title,
-        description,
-        price: String(price || ''),
-        createdBy: req.user.userId,
-        isActive: true
-      }
-    });
-
-    logger.info(`Resource created: ${title} by ${req.user.email}`);
-
-    res.status(201).json({
-      success: true,
-      message: 'Resource created successfully',
-      data: resource
-    });
-  } catch (error) {
-    logger.error('Create resource error:', error);
-    next(error);
-  }
-};
-
-const updateResource = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { title, description, price, isActive } = req.body;
-
-    // Check if resource exists
-    const resource = await prisma.resource.findUnique({
-      where: { id }
-    });
-
-    if (!resource) {
-      return res.status(404).json({
-        success: false,
-        message: 'Resource not found'
-      });
-    }
-
-    // Update resource
-    const updatedResource = await prisma.resource.update({
-      where: { id },
-      data: {
-        ...(title && { title }),
-        ...(description && { description }),
-        ...(price !== undefined && { price: String(price) }),
-        ...(isActive !== undefined && { isActive })
-      }
-    });
-
-    logger.info(`Resource updated: ${resource.title} by ${req.user.email}`);
-
-    res.status(200).json({
-      success: true,
-      message: 'Resource updated successfully',
-      data: updatedResource
-    });
-  } catch (error) {
-    logger.error('Update resource error:', error);
-    next(error);
-  }
-};
-
-const deleteResource = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-
-    // Check if resource exists
-    const resource = await prisma.resource.findUnique({
-      where: { id }
-    });
-
-    if (!resource) {
-      return res.status(404).json({
-        success: false,
-        message: 'Resource not found'
-      });
-    }
-
-    // Delete resource
-    await prisma.resource.delete({
-      where: { id }
-    });
-
-    logger.info(`Resource deleted: ${resource.title} by ${req.user.email}`);
-
-    res.status(200).json({
-      success: true,
-      message: 'Resource deleted successfully'
-    });
-  } catch (error) {
-    logger.error('Delete resource error:', error);
-    next(error);
-  }
-};
-
 const getAdminGallery = async (req, res, next) => {
   try {
     const { page = 1, limit = 10 } = req.query;
@@ -937,47 +720,6 @@ const deleteResult = async (req, res, next) => {
     });
   } catch (error) {
     logger.error('Delete result error:', error);
-    next(error);
-  }
-};
-
-const getResourceById = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-
-    const resource = await prisma.resource.findUnique({
-      where: { id, isActive: true },
-      include: {
-        creator: {
-          select: {
-            id: true,
-            email: true,
-            adminProfile: true
-          }
-        }
-      }
-    });
-
-    if (!resource) {
-      return res.status(404).json({
-        success: false,
-        message: 'Resource not found'
-      });
-    }
-
-    // Transform data for response
-    const { createdBy, creator, ...resourceData } = resource;
-    
-    res.status(200).json({
-      success: true,
-      message: 'Resource retrieved successfully',
-      data: {
-        ...resourceData,
-        author: creator?.adminProfile?.name || 'Admin'
-      }
-    });
-  } catch (error) {
-    logger.error('Get resource by ID error:', error);
     next(error);
   }
 };
@@ -1362,8 +1104,6 @@ const deleteBannerPoster = async (req, res, next) => {
 module.exports = {
   getAllBlogs,
   getBlogById,
-  getAllResources,
-  getResourceById,
   getGalleryItems,
   getGalleryItemById,
   getAllResults,
@@ -1372,10 +1112,6 @@ module.exports = {
   createBlog,
   updateBlog,
   deleteBlog,
-  getAdminResources,
-  createResource,
-  updateResource,
-  deleteResource,
   getAdminGallery,
   createGalleryItem,
   updateGalleryItem,

@@ -46,9 +46,6 @@ router.get('/achievements', authenticate, authorizeStudent, contentController.ge
 // Content access
 router.get('/blogs', authenticate, authorizeStudent, contentController.getAllBlogs);
 router.get('/blogs/:id', authenticate, authorizeStudent, contentController.getBlogById);
-router.get('/resources', authenticate, authorizeStudent, contentController.getAllResources);
-router.get('/resources/:id', authenticate, authorizeStudent, contentController.getResourceById);
-
 // Contact and inquiries
 router.post('/contact', authenticate, authorizeStudent, contactController.createContactMessage);
 router.post('/inquiry', authenticate, authorizeStudent, contactController.createInquiry);
