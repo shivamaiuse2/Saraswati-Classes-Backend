@@ -85,6 +85,7 @@ model Course {
   creator         User               @relation("CourseCreator", fields: [createdBy], references: [id])
   chapters        Chapter[]
   enrollments     CourseEnrollment[]
+  recordings      Recording[]
 
   @@index([board])
   @@index([createdBy])
@@ -393,4 +394,17 @@ enum BannerStatus {
 enum FeatureFlagStatus {
   ENABLED
   DISABLED
+}
+
+model Recording {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  youtubeLink String
+  courseId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  course      Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  @@index([courseId])
 }
