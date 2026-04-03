@@ -21,6 +21,8 @@ const uploadRoutes = require("./routes/upload.routes");
 const notificationRoutes = require("./routes/notification.routes");
 const bannerRoutes = require("./routes/banner.routes");
 const enrollmentRoutes = require("./routes/enrollment.routes");
+const chapterRoutes = require("./routes/chapter.routes");
+const recordingRoutes = require("./routes/recording.routes");
 
 // Import middleware
 const { errorHandler } = require("./middleware/error.middleware");
@@ -151,6 +153,8 @@ app.use("/api/v1/contact", contactRoutes);
 app.use("/api/v1/upload", uploadRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/banners", bannerRoutes);
+app.use("/api/v1/chapters", chapterRoutes);
+app.use("/api/v1/recordings", recordingRoutes);
 app.use("/api/v1", enrollmentRoutes);
 
 // 404 handler
