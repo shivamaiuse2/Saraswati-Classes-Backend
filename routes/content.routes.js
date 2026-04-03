@@ -106,6 +106,18 @@ router.get('/gallery', contentController.getGalleryItems);
  */
 router.get('/results', contentController.getAllResults);
 
+/**
+ * @swagger
+ * /banner-posters:
+ *   get:
+ *     summary: Get all active banner posters (Public)
+ *     tags: [Content]
+ *     responses:
+ *       200:
+ *         description: Banner posters retrieved successfully
+ */
+router.get('/banner-posters', contentController.getAllBannerPosters);
+
 // Admin routes
 /**
  * @swagger

@@ -1120,5 +1120,10 @@ module.exports = {
   createResult,
   updateResult,
   deleteResult,
-  getStudentResults
+  getStudentResults,
+  getAllBannerPosters,
+  getBannerPosterById,
+  createBannerPoster,
+  updateBannerPoster,
+  deleteBannerPoster
 };
