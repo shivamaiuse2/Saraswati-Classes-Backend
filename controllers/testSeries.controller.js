@@ -28,6 +28,11 @@ const getAllTestSeries = async (req, res, next) => {
               email: true,
               adminProfile: true
             }
+          },
+          tests: {
+            orderBy: {
+              testNumber: 'asc'
+            }
           }
         },
         skip: parseInt(skip),
@@ -151,7 +156,12 @@ const getAdminTestSeries = async (req, res, next) => {
               adminProfile: true
             }
           },
-          enrollments: true
+          enrollments: true,
+          tests: {
+            orderBy: {
+              testNumber: 'asc'
+            }
+          }
         },
         skip: parseInt(skip),
         take: parseInt(limit),
