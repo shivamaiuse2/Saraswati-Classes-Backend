@@ -24,6 +24,20 @@ const getAllCourses = async (req, res, next) => {
     const courses = await prisma.course.findMany({
       where,
       include: {
+        chapters: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            youtubeLink: true,
+            formLink: true,
+            createdAt: true,
+            updatedAt: true
+          },
+          orderBy: {
+            createdAt: 'asc'
+          }
+        },
         creator: {
           select: {
             id: true,
@@ -324,7 +338,7 @@ const deleteCourse = async (req, res, next) => {
 const addChapter = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title, description, videoUrl, testDescription, testLink } = req.body;
+    const { title, description, youtubeLink, formLink } = req.body;
 
     // Validate required fields
     if (!title || !description) {
