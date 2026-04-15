@@ -82,8 +82,34 @@ const deleteDocument = async (publicId) => {
   }
 };
 
+// Upload high quality image to Cloudinary
+const uploadHighQualityImage = async (fileBuffer, folder = 'uploads') => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      {
+        folder: folder,
+        resource_type: 'image'
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve({
+            url: result.secure_url,
+            publicId: result.public_id,
+            format: result.format,
+            width: result.width,
+            height: result.height
+          });
+        }
+      }
+    ).end(fileBuffer);
+  });
+};
+
 module.exports = {
   uploadImage,
+  uploadHighQualityImage,
   uploadDocument,
   deleteFile,
   deleteDocument
