@@ -31,80 +31,30 @@ const { authenticate, authorizeAdmin, authorizeStudent } = require('../utils/aut
  */
 // Admin and public routes
 router.get('/', testSeriesController.getAllTestSeries);
-router.get('/admin', authenticate, authorizeAdmin, testSeriesController.getAdminTestSeries);
+router.get('/admin', testSeriesController.getAdminTestSeries);
 
 // Test results management - MUST be before /:id to avoid route collision
-router.post('/results', authenticate, authorizeAdmin, testSeriesController.createTestResult);
-router.get('/results', authenticate, authorizeAdmin, testSeriesController.getAllTestResults);
-router.put('/results/:id', authenticate, authorizeAdmin, testSeriesController.updateTestResult);
-router.delete('/results/:id', authenticate, authorizeAdmin, testSeriesController.deleteTestResult);
+router.post('/results', testSeriesController.createTestResult);
+router.get('/results', testSeriesController.getAllTestResults);
+router.put('/results/:id', testSeriesController.updateTestResult);
+router.delete('/results/:id', testSeriesController.deleteTestResult);
 
 // Test Series by ID - must come after specific routes
 router.get('/:id', testSeriesController.getTestSeriesById);
 
 // Admin operations
-router.post('/', authenticate, authorizeAdmin, testSeriesController.createTestSeries);
-router.put('/:id', authenticate, authorizeAdmin, testSeriesController.updateTestSeries);
-router.delete('/:id', authenticate, authorizeAdmin, testSeriesController.deleteTestSeries);
+router.post('/', testSeriesController.createTestSeries);
+router.put('/:id', testSeriesController.updateTestSeries);
+router.delete('/:id', testSeriesController.deleteTestSeries);
 
 // Test Series - Test management
-router.post('/:id/tests', authenticate, authorizeAdmin, testSeriesController.addTestToSeries);
-router.put('/tests/:id', authenticate, authorizeAdmin, testSeriesController.updateTest);
-router.delete('/tests/:id', authenticate, authorizeAdmin, testSeriesController.deleteTest);
+router.post('/:id/tests', testSeriesController.addTestToSeries);
+router.put('/tests/:id', testSeriesController.updateTest);
+router.delete('/tests/:id', testSeriesController.deleteTest);
 
 // Student routes
-/**
- * @swagger
- * /students/test-series:
- *   get:
- *     summary: Get enrolled test series (Student)
- *     tags: [Test Series]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Enrolled test series retrieved successfully
- */
-router.get('/students/test-series', authenticate, authorizeStudent, testSeriesController.getStudentTestSeries);
-
-/**
- * @swagger
- * /students/test-series/{id}/enroll:
- *   post:
- *     summary: Enroll in test series (Student)
- *     tags: [Test Series]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Enrolled successfully
- */
-router.post('/students/test-series/:id/enroll', authenticate, authorizeStudent, testSeriesController.enrollInTestSeries);
-
-/**
- * @swagger
- * /students/test-series/{id}/results:
- *   get:
- *     summary: Get test series results (Student)
- *     tags: [Test Series]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Test results retrieved successfully
- */
-router.get('/students/test-series/:id/results', authenticate, authorizeStudent, testSeriesController.getTestSeriesResults);
+router.get('/students/test-series', testSeriesController.getStudentTestSeries);
+router.post('/students/test-series/:id/enroll', testSeriesController.enrollInTestSeries);
+router.get('/students/test-series/:id/results', testSeriesController.getTestSeriesResults);
 
 module.exports = router;

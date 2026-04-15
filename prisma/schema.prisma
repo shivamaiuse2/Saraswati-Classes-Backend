@@ -120,11 +120,10 @@ model TestSeries {
   price               String
   createdAt           DateTime               @default(now())
   updatedAt           DateTime               @updatedAt
-  createdBy           String
-  isActive            Boolean                @default(true)
+  createdBy           String?
   tests               Test[]
   testResults         TestResult[]
-  creator             User                   @relation("TestSeriesCreator", fields: [createdBy], references: [id])
+  creator             User?                  @relation("TestSeriesCreator", fields: [createdBy], references: [id])
   enrollments         TestSeriesEnrollment[]
 
   @@index([createdBy])

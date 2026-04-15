@@ -220,8 +220,7 @@ const updateEnrollmentStatus = async (req, res, next) => {
 
       const isTestSeries = await prisma.testSeries.findFirst({
         where: { 
-          title: { equals: enrollment.courseOrSeries, mode: 'insensitive' },
-          isActive: true 
+          title: { equals: enrollment.courseOrSeries, mode: 'insensitive' }
         }
       });
 
@@ -516,11 +515,10 @@ const createEnrollment = async (req, res, next) => {
     } else if (testSeriesId || testSeriesTitle) {
       // Find test series by ID or title
       const testSeries = testSeriesId 
-        ? await prisma.testSeries.findUnique({ where: { id: testSeriesId, isActive: true } })
+        ? await prisma.testSeries.findUnique({ where: { id: testSeriesId } })
         : await prisma.testSeries.findFirst({ 
             where: { 
-              title: { equals: testSeriesTitle, mode: 'insensitive' }, 
-              isActive: true 
+              title: { equals: testSeriesTitle, mode: 'insensitive' } 
             } 
           });
 

@@ -8,7 +8,7 @@ const getAllTestSeries = async (req, res, next) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     // Build where clause
-    let where = { isActive: true };
+    let where = {};
 
     if (search) {
       where.OR = [
@@ -103,7 +103,7 @@ const getTestSeriesById = async (req, res, next) => {
       }
     });
 
-    if (!testSeries || !testSeries.isActive) {
+    if (!testSeries) {
       return res.status(404).json({
         success: false,
         message: 'Test series not found'
@@ -243,8 +243,7 @@ const createTestSeries = async (req, res, next) => {
     // Check if test series title already exists
     const existingTestSeries = await prisma.testSeries.findFirst({
       where: { 
-        title: { equals: title, mode: 'insensitive' },
-        isActive: true 
+        title: { equals: title, mode: 'insensitive' }
       }
     });
 
@@ -271,7 +270,7 @@ const createTestSeries = async (req, res, next) => {
         testsCount: parseInt(testsCount),
         mode,
         price,
-        createdBy: req.user.userId
+        createdBy: req.user?.userId || null
       }
     });
 
@@ -305,8 +304,7 @@ const updateTestSeries = async (req, res, next) => {
       showInHeroPoster,
       testsCount,
       mode,
-      price,
-      isActive
+      price
     } = req.body;
 
     // Check if test series exists
@@ -326,7 +324,6 @@ const updateTestSeries = async (req, res, next) => {
       const duplicateTestSeries = await prisma.testSeries.findFirst({
         where: { 
           title: { equals: title, mode: 'insensitive' },
-          isActive: true,
           NOT: { id }
         }
       });
@@ -368,12 +365,11 @@ const updateTestSeries = async (req, res, next) => {
         ...(showInHeroPoster !== undefined && { showInHeroPoster }),
         ...(testsCount && { testsCount: parseInt(testsCount) }),
         ...(upperMode && { mode: upperMode }),
-        ...(price && { price }),
-        ...(isActive !== undefined && { isActive })
+        ...(price && { price })
       }
     });
 
-    logger.info(`Test series updated: ${existingTestSeries.title} by ${req.user.email}`);
+    logger.info(`Test series updated: ${existingTestSeries.title}${req.user ? ` by ${req.user.email}` : ''}`);
 
     res.status(200).json({
       success: true,
@@ -403,13 +399,12 @@ const deleteTestSeries = async (req, res, next) => {
       });
     }
 
-    // Soft delete - set isActive to false
-    await prisma.testSeries.update({
-      where: { id },
-      data: { isActive: false }
+    // Hard delete
+    await prisma.testSeries.delete({
+      where: { id }
     });
 
-    logger.info(`Test series deleted: ${testSeries.title} by ${req.user.email}`);
+    logger.info(`Test series deleted: ${testSeries.title}${req.user ? ` by ${req.user.email}` : ''}`);
 
     res.status(200).json({
       success: true,
@@ -424,7 +419,15 @@ const deleteTestSeries = async (req, res, next) => {
 // Get student enrolled test series
 const getStudentTestSeries = async (req, res, next) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(200).json({
+        success: true,
+        message: 'No user session',
+        data: []
+      });
+    }
 
     // Get student profile
     const studentProfile = await prisma.studentProfile.findUnique({
@@ -474,11 +477,18 @@ const getStudentTestSeries = async (req, res, next) => {
 const enrollInTestSeries = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const userId = req.user.userId;
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Login required to enroll (please use the enrollment form)'
+      });
+    }
 
     // Check if test series exists and is active
     const testSeries = await prisma.testSeries.findUnique({
-      where: { id, isActive: true }
+      where: { id }
     });
 
     if (!testSeries) {
@@ -529,7 +539,7 @@ const enrollInTestSeries = async (req, res, next) => {
       }
     });
 
-    logger.info(`Student ${req.user.email} enrolled in test series: ${testSeries.title}`);
+    logger.info(`Student ${req.user?.email || studentProfile.id} enrolled in test series: ${testSeries.title}`);
 
     res.status(200).json({
       success: true,
@@ -546,7 +556,14 @@ const enrollInTestSeries = async (req, res, next) => {
 const getTestSeriesResults = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const userId = req.user.userId;
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Login required to see results'
+      });
+    }
 
     // Get student profile
     const studentProfile = await prisma.studentProfile.findUnique({
