@@ -1,19 +1,60 @@
+const axios = require('axios');
 const prisma = require('../config/prisma');
 const logger = require('../utils/logger');
 
+const youtubeOembedCache = new Map();
+
 // Helper to extract YouTube ID and generate URLs
-function getYoutubeDetails(url) {
+async function getYoutubeDetails(url) {
   if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  const videoId = (match && match[2].length === 11) ? match[2] : null;
   
-  if (!videoId) return null;
+  const videoRegExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const videoMatch = url.match(videoRegExp);
+  const videoId = (videoMatch && videoMatch[2].length === 11) ? videoMatch[2] : null;
+
+  const playlistRegExp = /[?&]list=([^#\&\?]+)/;
+  const playlistMatch = url.match(playlistRegExp);
+  const playlistId = playlistMatch ? playlistMatch[1] : null;
+
+  if (!videoId && !playlistId) return null;
+
+  if (videoId && !playlistId) {
+    return {
+      videoId,
+      thumbnailUrl: `https://img.youtube.com/vi/${videoId}/0.jpg`,
+      embedUrl: `https://www.youtube.com/embed/${videoId}`
+    };
+  }
+
+  const isOnlyPlaylist = playlistId && !videoId;
+  let thumbnailUrl = '';
   
+  if (isOnlyPlaylist) {
+    if (youtubeOembedCache.has(playlistId)) {
+      thumbnailUrl = youtubeOembedCache.get(playlistId);
+    } else {
+      try {
+        const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+        const res = await axios.get(oembedUrl);
+        if (res.data && res.data.thumbnail_url) {
+          thumbnailUrl = res.data.thumbnail_url;
+          youtubeOembedCache.set(playlistId, thumbnailUrl);
+        }
+      } catch (e) {
+        logger.error('Error fetching youtube oembed:', e.message);
+      }
+    }
+  } else {
+    thumbnailUrl = `https://img.youtube.com/vi/${videoId}/0.jpg`;
+  }
+
   return {
-    videoId,
-    thumbnailUrl: `https://img.youtube.com/vi/${videoId}/0.jpg`,
-    embedUrl: `https://www.youtube.com/embed/${videoId}`
+    videoId: videoId || undefined,
+    playlistId: playlistId || undefined,
+    thumbnailUrl: thumbnailUrl || (videoId ? `https://img.youtube.com/vi/${videoId}/0.jpg` : ''),
+    embedUrl: videoId 
+      ? `https://www.youtube.com/embed/${videoId}?list=${playlistId}`
+      : `https://www.youtube.com/embed/videoseries?list=${playlistId}`
   };
 }
 
@@ -29,7 +70,7 @@ const createRecording = async (req, res, next) => {
       });
     }
 
-    const youtubeDetails = getYoutubeDetails(youtubeLink);
+    const youtubeDetails = await getYoutubeDetails(youtubeLink);
     if (!youtubeDetails) {
       return res.status(400).json({
         success: false,
@@ -70,7 +111,7 @@ const createRecording = async (req, res, next) => {
 
     const response = {
       ...recording,
-      ...getYoutubeDetails(recording.youtubeLink)
+      ...youtubeDetails
     };
 
     logger.info(`Recording created: ${title}`);
@@ -110,9 +151,12 @@ const getAllRecordings = async (req, res, next) => {
       orderBy: { createdAt: 'desc' }
     });
 
-    const transformedRecordings = recordings.map(recording => ({
-      ...recording,
-      ...getYoutubeDetails(recording.youtubeLink)
+    const transformedRecordings = await Promise.all(recordings.map(async recording => {
+      const details = await getYoutubeDetails(recording.youtubeLink);
+      return {
+        ...recording,
+        ...details
+      };
     }));
 
     res.status(200).json({
@@ -150,9 +194,10 @@ const getRecordingById = async (req, res, next) => {
       });
     }
 
+    const youtubeDetails = await getYoutubeDetails(recording.youtubeLink);
     const response = {
       ...recording,
-      ...getYoutubeDetails(recording.youtubeLink)
+      ...youtubeDetails
     };
 
     res.status(200).json({
@@ -183,7 +228,7 @@ const updateRecording = async (req, res, next) => {
     }
 
     if (youtubeLink) {
-      const youtubeDetails = getYoutubeDetails(youtubeLink);
+      const youtubeDetails = await getYoutubeDetails(youtubeLink);
       if (!youtubeDetails) {
         return res.status(400).json({
           success: false,
@@ -223,9 +268,10 @@ const updateRecording = async (req, res, next) => {
       }
     });
 
+    const responseDetails = await getYoutubeDetails(recording.youtubeLink);
     const response = {
       ...recording,
-      ...getYoutubeDetails(recording.youtubeLink)
+      ...responseDetails
     };
 
     logger.info(`Recording updated: ${id}`);
