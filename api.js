@@ -23,6 +23,7 @@ const bannerRoutes = require("./routes/banner.routes");
 const enrollmentRoutes = require("./routes/enrollment.routes");
 const chapterRoutes = require("./routes/chapter.routes");
 const recordingRoutes = require("./routes/recording.routes");
+const galleryRoutes = require("./routes/gallery.routes");
 
 // Import middleware
 const { errorHandler } = require("./middleware/error.middleware");
@@ -40,6 +41,7 @@ app.use(helmet());
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [
   "https://saraswati-classes-frontend.vercel.app",
+  "https://www.saraswaticlass.in",
   "http://localhost:5173",
   "http://localhost:3000",
   "http://localhost:3001",
@@ -155,6 +157,7 @@ app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/banners", bannerRoutes);
 app.use("/api/v1/chapters", chapterRoutes);
 app.use("/api/v1/recordings", recordingRoutes);
+app.use("/api/v1/gallery", galleryRoutes);
 app.use("/api/v1", enrollmentRoutes);
 
 // 404 handler
