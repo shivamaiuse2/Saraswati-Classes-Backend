@@ -493,6 +493,3 @@ module.exports = {
   getUserAnalytics,
   getRevenueAnalytics
 };
-
-
-
